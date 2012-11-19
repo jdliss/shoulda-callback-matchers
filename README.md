@@ -31,7 +31,8 @@ Shoulda will automatically include matchers into the appropriate example groups.
 
 ## Credits
 
-Shoulda is maintained and funded by [thoughtbot](http://thoughtbot.com/community).
+This gem is maintained by me,
+Shoulda is maintained and funded by [thoughtbot](http://thoughtbot.com/community)
 
 ## License
 
