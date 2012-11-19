@@ -1,0 +1,1 @@
+require 'shoulda/callback/matchers'
