@@ -18,11 +18,11 @@ Gem::Specification.new do |s|
 
   s.add_dependency('activesupport', '>= 3.0.0')
 
-  s.add_development_dependency('appraisal',   '~> 0.4.0')
+  s.add_development_dependency('appraisal',   '~> 0.5.0')
   s.add_development_dependency('aruba')
-  s.add_development_dependency('bourne',      '~> 1.1.2')
+  s.add_development_dependency('bourne',      '~> 1.3.0')
   s.add_development_dependency('bundler',     '>= 1.1.0')
-  s.add_development_dependency('rails',       '~> 3.0')
-  s.add_development_dependency('rake',        '~> 0.9.2')
-  s.add_development_dependency('rspec-rails', '~> 2.8.1')
+  s.add_development_dependency('rails',       '>= 3.0')
+  s.add_development_dependency('rake',        '~> 10.0.0')
+  s.add_development_dependency('rspec-rails', '~> 2.12.0')
 end
