@@ -6,7 +6,6 @@ describe Shoulda::Callback::Matchers::ActiveModel do
     before do
       @model = define_model(:example, :attr  => :string,
                                       :other => :integer) do
-        attr_accessible :attr, :other
         before_create :dance!, :if => :evaluates_to_false!
         after_save  :shake!, :unless => :evaluates_to_true!
       end.new
@@ -30,7 +29,6 @@ describe Shoulda::Callback::Matchers::ActiveModel do
       before do
         @model = define_model(:example, :attr  => :string,
                                         :other => :integer) do
-          attr_accessible :attr, :other
           send(:"before_#{lifecycle}", :dance!, :if => :evaluates_to_false!)
           send(:"after_#{lifecycle}", :shake!, :unless => :evaluates_to_true!)
           send(:"around_#{lifecycle}", :giggle!)
@@ -79,7 +77,6 @@ describe Shoulda::Callback::Matchers::ActiveModel do
     before do
       @model = define_model(:example, :attr  => :string,
                                       :other => :integer) do
-        attr_accessible :attr, :other
         before_validation :dance!, :if => :evaluates_to_false!
         after_validation  :shake!, :unless => :evaluates_to_true!
         before_validation :dress!, :on => :create
@@ -171,7 +168,6 @@ describe Shoulda::Callback::Matchers::ActiveModel do
       before do
         @model = define_model(:example, :attr  => :string,
                                         :other => :integer) do
-          attr_accessible :attr, :other
           send(:"after_#{lifecycle}", :dance!, :if => :evaluates_to_false!)
           send(:"after_#{lifecycle}", :shake!, :unless => :evaluates_to_true!)
           

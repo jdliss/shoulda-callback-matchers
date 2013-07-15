@@ -15,14 +15,21 @@ Matchers to test before, after and around hooks:
     
 Be aware that this tests for the method call and not the method itself. It makes testing via triggering the callback events (validation, save) unnecessary, but you should still test the called procedure seperately.
 
-In Rails 3 and Bundler, add the following to your Gemfile:
+In Rails 4 and Bundler, add the following to your Gemfile:
 
     group :test do
-      gem "shoulda-callback-matchers"
+      gem "shoulda-callback-matchers", ">=0.0.3"
     end
 
-    # rspec-rails needs to be in the development group so that Rails generators
-    # work.
+
+In Rails 3 and Bundler, add version 0.0.2 to your Gemfile:
+
+    group :test do
+      gem "shoulda-callback-matchers", "=0.0.2"
+    end
+
+rspec-rails needs to be in the development group so that Rails generators work.
+
     group :development, :test do
       gem "rspec-rails"
     end

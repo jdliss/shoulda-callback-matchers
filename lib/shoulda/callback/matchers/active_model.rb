@@ -89,7 +89,7 @@ module Shoulda # :nodoc:
             end
           
             def matches_optional_lifecycle?(callback)
-              !@optional_lifecycle || callback.options[:if].include?("self.validation_context == :#{@optional_lifecycle}")
+              !@optional_lifecycle || callback.options[:if].include?("[:#{@optional_lifecycle}].include? self.validation_context")
             end
           
             def condition_phrase
