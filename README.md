@@ -18,14 +18,13 @@ Be aware that this tests for the method call and not the method itself. It makes
 In Rails 4 and Bundler, add the following to your Gemfile:
 
     group :test do
-      gem "shoulda-callback-matchers", ">=0.0.3"
+      gem "shoulda-callback-matchers", ">=0.3.0"
     end
-
 
 In Rails 3 and Bundler, add version 0.0.2 to your Gemfile:
 
     group :test do
-      gem "shoulda-callback-matchers", "=0.0.2"
+      gem "shoulda-callback-matchers", "=0.2.0"
     end
 
 rspec-rails needs to be in the development group so that Rails generators work.
