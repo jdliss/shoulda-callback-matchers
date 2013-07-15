@@ -6,6 +6,7 @@ Gem::Specification.new do |s|
   s.version     = Shoulda::Callback::Matchers::VERSION.dup
   s.authors     = ["Beat Richartz"]
   s.date        = Time.now.strftime("%Y-%m-%d")
+  s.licenses    = ["MIT"]
   s.email       = "attraccessor@gmail.com"
   s.homepage    = "http://github.com/beatrichartz/shoulda-callback-matchers"
   s.summary     = "Making callback tests easy on the fingers and eyes"
