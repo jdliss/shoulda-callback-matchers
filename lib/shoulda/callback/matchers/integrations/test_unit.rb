@@ -3,7 +3,7 @@
 # in environments where test/unit is not required, this is necessary
 unless defined?(Test::Unit::TestCase)
   begin
-    require 'test/unit' 
+    require 'test/unit/testcase'
   rescue LoadError
     # silent
   end
@@ -15,7 +15,7 @@ if defined?(ActiveRecord)
   module Test
     module Unit
       class TestCase
-        include Shoulda::Callback::Matchers::ActiveModel        
+        include Shoulda::Callback::Matchers::ActiveModel
         extend Shoulda::Callback::Matchers::ActiveModel
       end
     end
