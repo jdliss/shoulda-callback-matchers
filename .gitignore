@@ -9,3 +9,6 @@ tags
 tmp
 .bundle
 *.rbc
+*.gem
+gemfiles/*
+Gemfile.lock
