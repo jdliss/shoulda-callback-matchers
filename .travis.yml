@@ -7,7 +7,7 @@ rvm:
   - jruby-19mode
   - jruby-20mode
 
-script: "bundle exec rake"
+script: "bundle install && bundle exec rake"
 
 gemfile:
   - gemfiles/4.0.gemfile
