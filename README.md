@@ -1,4 +1,4 @@
-Matchers to test before, after and around hooks(currently supports symbol and object callbacks):
+Matchers to test before, after and around hooks(currently supports gsymbol and object callbacks):
     
 Symbol Callbacks:
 
@@ -23,6 +23,7 @@ Object Callbacks:
       def before_validation{}
       def after_find{}
     end
+    
     describe Post do
       it { should callback(CallbackClass).before(:save) }
       it { should callback(CallbackClass).after(:create) }
