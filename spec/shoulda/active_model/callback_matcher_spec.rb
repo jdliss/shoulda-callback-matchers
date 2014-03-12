@@ -9,6 +9,8 @@ describe Shoulda::Callback::Matchers::ActiveModel do
         attr_accessible :attr, :other
         before_create :dance!, :if => :evaluates_to_false!
         after_save  :shake!, :unless => :evaluates_to_true!
+        define_method(:shake!){}
+        define_method(:dance!){}
       end.new
     end
     it "should return a meaningful failure message when used without a defined lifecycle" do
@@ -34,6 +36,9 @@ describe Shoulda::Callback::Matchers::ActiveModel do
           send(:"before_#{lifecycle}", :dance!, :if => :evaluates_to_false!)
           send(:"after_#{lifecycle}", :shake!, :unless => :evaluates_to_true!)
           send(:"around_#{lifecycle}", :giggle!)
+          define_method(:shake!){}
+          define_method(:dance!){}
+          define_method(:giggle!){}
         end.new
       end
       context "as a simple callback test" do
@@ -85,6 +90,11 @@ describe Shoulda::Callback::Matchers::ActiveModel do
         before_validation :dress!, :on => :create
         after_validation  :shriek!, :on => :update, :unless => :evaluates_to_true!
         after_validation  :pucker!, :on => :save, :if => :evaluates_to_false!
+        define_method(:dance!){}
+        define_method(:shake!){}
+        define_method(:dress!){}
+        define_method(:shriek!){}
+        define_method(:pucker!){}
       end.new
     end
     
@@ -174,6 +184,8 @@ describe Shoulda::Callback::Matchers::ActiveModel do
           attr_accessible :attr, :other
           send(:"after_#{lifecycle}", :dance!, :if => :evaluates_to_false!)
           send(:"after_#{lifecycle}", :shake!, :unless => :evaluates_to_true!)
+          define_method(:shake!){}
+          define_method(:dance!){}
           
           define_method :evaluates_to_false! do
             false

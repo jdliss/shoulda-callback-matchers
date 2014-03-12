@@ -61,6 +61,7 @@ module Shoulda # :nodoc:
             else
               callbacks = subject.send(:"_#{@lifecycle}_callbacks").dup
               callbacks = callbacks.select do |callback|
+                subject.respond_to?(callback.filter) &&
                 is_callback?(subject, callback) && 
                 callback.kind == @hook && 
                 matches_conditions?(callback) && 
