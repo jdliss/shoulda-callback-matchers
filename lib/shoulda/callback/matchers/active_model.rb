@@ -60,14 +60,30 @@ module Shoulda # :nodoc:
               false
             else
               callbacks = subject.send(:"_#{@lifecycle}_callbacks").dup
-              callbacks = callbacks.select do |callback| 
-                callback.filter == @method && 
+              callbacks = callbacks.select do |callback|
+                subject.respond_to?(callback.filter) &&
+                is_callback?(subject, callback) && 
                 callback.kind == @hook && 
                 matches_conditions?(callback) && 
                 matches_optional_lifecycle?(callback)
               end
               callbacks.size > 0
             end
+          end
+
+          def is_callback?(subject, callback) 
+            is_callback_object?(subject, callback) || is_callback_symbol?(subject, callback)
+          end
+          
+          def is_callback_symbol?(subject, callback)
+            callback.filter == @method
+          end
+
+          def is_callback_object?(subject, callback)
+            @method.kind_of?(Class) && 
+            callback.filter.match(/^_callback/) && 
+            subject.respond_to?("#{callback.filter}_object") && 
+            subject.send("#{callback.filter}_object").class == @method 
           end
         
           def failure_message
