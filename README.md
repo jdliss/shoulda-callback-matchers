@@ -1,4 +1,4 @@
-Matchers to test before, after and around hooks(currently supports :symbol and object callbacks):
+Matchers to test before, after and around hooks(currently supports symbol and object callbacks):
     
 Symbol Callbacks:
 
