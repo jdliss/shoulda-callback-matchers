@@ -74,6 +74,7 @@ module Shoulda # :nodoc:
           def is_callback?(subject, callback) 
             is_callback_object?(subject, callback) || is_callback_symbol?(subject, callback)
           end
+          
           def is_callback_symbol?(subject, callback)
             callback.filter == @method
           end
