@@ -30,12 +30,30 @@ describe Shoulda::Callback::Matchers::ActiveModel do
   [:save, :create, :update, :destroy].each do |lifecycle|
     context "on #{lifecycle}" do
       before do
+
+        @callback_object_class = define_model(:callback) do
+          define_method("before_#{lifecycle}"){}
+          define_method("after_#{lifecycle}"){}
+          define_method("around_#{lifecycle}"){}
+        end
+
+        callback_object = @callback_object_class.new
+
+        @callback_object_not_found_class = define_model(:callback_not_fount) do
+          define_method("before_#{lifecycle}"){}
+          define_method("after_#{lifecycle}"){}
+          define_method("around_#{lifecycle}"){}
+        end
+
         @model = define_model(:example, :attr  => :string,
                                         :other => :integer) do
           attr_accessible :attr, :other
           send(:"before_#{lifecycle}", :dance!, :if => :evaluates_to_false!)
           send(:"after_#{lifecycle}", :shake!, :unless => :evaluates_to_true!)
           send(:"around_#{lifecycle}", :giggle!)
+          send(:"before_#{lifecycle}", callback_object, :if => :evaluates_to_false!)
+          send(:"after_#{lifecycle}", callback_object, :unless => :evaluates_to_true!)
+          send(:"around_#{lifecycle}", callback_object)
           define_method(:shake!){}
           define_method(:dance!){}
           define_method(:giggle!){}
@@ -51,8 +69,20 @@ describe Shoulda::Callback::Matchers::ActiveModel do
         it "should find the callback around the fact" do
           @model.should callback(:giggle!).around(lifecycle)
         end
+        it "should find the callback_object before the fact" do
+          @model.should callback(@callback_object_class).before(lifecycle)
+        end
+        it "should find the callback_object after the fact" do
+          @model.should callback(@callback_object_class).after(lifecycle)
+        end
+        it "should find the callback_object around the fact" do
+          @model.should callback(@callback_object_class).around(lifecycle)
+        end
         it "should not find callbacks that are not there" do
           @model.should_not callback(:scream!).around(lifecycle)
+        end
+        it "should not find callback_objects around the fact" do
+          @model.should_not callback(@callback_object_not_found_class).around(lifecycle)
         end
         it "should have a meaningful description" do
           matcher = callback(:dance!).before(lifecycle)
@@ -71,6 +101,18 @@ describe Shoulda::Callback::Matchers::ActiveModel do
         end
         it "should not find callbacks that are not there entirely" do
           @model.should_not callback(:scream!).before(lifecycle).unless(:evaluates_to_false!)
+        end
+        it "should match the if condition" do
+          @model.should callback(@callback_object_class).before(lifecycle).if(:evaluates_to_false!)
+        end
+        it "should match the unless condition" do
+          @model.should callback(@callback_object_class).after(lifecycle).unless(:evaluates_to_true!)
+        end
+        it "should not find callbacks not matching the conditions" do
+          @model.should_not callback(@callback_object_class).around(lifecycle).unless(:evaluates_to_false!)
+        end
+        it "should not find callbacks that are not there entirely" do
+          @model.should_not callback(@callback_object_not_found_class).before(lifecycle).unless(:evaluates_to_false!)
         end
         it "should have a meaningful description" do
           matcher = callback(:dance!).after(lifecycle).unless(:evaluates_to_false!)
