@@ -15,6 +15,7 @@ module Shoulda # :nodoc:
         # Examples:
         #   it { should callback(:method).after(:create) }
         #   it { should callback(:method).before(:validation).unless(:should_it_not?) }
+        #   it { should callback(CallbackClass).before(:validation).unless(:should_it_not?) }
         #
         def callback(method)
           CallbackMatcher.new(method)
@@ -71,7 +72,7 @@ module Shoulda # :nodoc:
             end
           end
 
-          def is_callback?(subject, callback) 
+          def is_callback?(subject, callback)
             is_callback_object?(subject, callback) || is_callback_symbol?(subject, callback)
           end
           
@@ -105,7 +106,7 @@ module Shoulda # :nodoc:
             end
           
             def matches_optional_lifecycle?(callback)
-              !@optional_lifecycle || callback.options[:if].include?("[:#{@optional_lifecycle}].include? self.validation_context")
+              !@optional_lifecycle || callback.options[:if].include?(lifecycle_context_string)
             end
           
             def condition_phrase
@@ -114,6 +115,14 @@ module Shoulda # :nodoc:
           
             def optional_lifecycle_phrase
               " on #{@optional_lifecycle}" if @optional_lifecycle
+            end
+            
+            def lifecycle_context_string
+              if ActiveRecord::VERSION::MAJOR == 4
+                "[:#{@optional_lifecycle}].include? self.validation_context"
+              else
+                "self.validation_context == :#{@optional_lifecycle}"
+              end
             end
 
         end

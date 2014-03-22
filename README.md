@@ -39,17 +39,13 @@ Object Callbacks:
 
 Be aware that this tests for the method call and not the method itself. It makes testing via triggering the callback events (validation, save) unnecessary, but you should still test the called procedure seperately.
 
-In Rails 4 and Bundler, add the following to your Gemfile:
+In Rails 3 or 4 and Bundler, add the following to your Gemfile:
 
     group :test do
-      gem "shoulda-callback-matchers", ">=0.3.0"
+      gem "shoulda-callback-matchers", "~> 0.4"
     end
 
-In Rails 3 and Bundler, add version 0.0.2 to your Gemfile:
-
-    group :test do
-      gem "shoulda-callback-matchers", "=0.2.0"
-    end
+This gem uses semantic versioning, so you won't have incompability issues with patches.
 
 rspec-rails needs to be in the development group so that Rails generators work.
 
@@ -61,8 +57,13 @@ Shoulda will automatically include matchers into the appropriate example groups.
 
 ## Credits
 
-This gem is maintained by me,
+This gem is maintained by me and its contributors,
 Shoulda is maintained and funded by [thoughtbot](http://thoughtbot.com/community)
+
+## Contributors & Contributions
+- @pvertenten
+
+Let's make this gem useful, send me a PR if you've discovered an issue you'd like to fix!
 
 ## License
 
