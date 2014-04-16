@@ -1,4 +1,4 @@
-require 'spec_helper'
+  require 'spec_helper'
 
 describe Shoulda::Callback::Matchers::ActiveModel do
   
@@ -13,11 +13,14 @@ describe Shoulda::Callback::Matchers::ActiveModel do
                                       :other => :integer) do
         before_create :dance!, :if => :evaluates_to_false!
         after_save  :shake!, :unless => :evaluates_to_true!
+        after_create :wiggle!
         before_create callback_object, :if => :evaluates_to_false!
         after_save  callback_object, :unless => :evaluates_to_true!
+        after_create callback_object
         define_method(:shake!){}
         define_method(:dance!){}
       end.new
+      
     end
     it "should return a meaningful failure message when used without a defined lifecycle" do
       matcher = callback(:dance!)
@@ -54,10 +57,17 @@ describe Shoulda::Callback::Matchers::ActiveModel do
           define_method("after_#{lifecycle}"){}
           define_method("around_#{lifecycle}"){}
         end
-
+        
         callback_object = @callback_object_class.new
+        
+        @other_callback_object_class = define_model(:other_callback) do
+          define_method("after_#{lifecycle}"){}
+          define_method("around_#{lifecycle}"){}
+        end
 
-        @callback_object_not_found_class = define_model(:callback_not_fount) do
+        other_callback_object = @other_callback_object_class.new
+        
+        @callback_object_not_found_class = define_model(:callback_not_found) do
           define_method("before_#{lifecycle}"){}
           define_method("after_#{lifecycle}"){}
           define_method("around_#{lifecycle}"){}
@@ -68,9 +78,13 @@ describe Shoulda::Callback::Matchers::ActiveModel do
           send(:"before_#{lifecycle}", :dance!, :if => :evaluates_to_false!)
           send(:"after_#{lifecycle}", :shake!, :unless => :evaluates_to_true!)
           send(:"around_#{lifecycle}", :giggle!)
+          send(:"before_#{lifecycle}", :wiggle!)
+          
           send(:"before_#{lifecycle}", callback_object, :if => :evaluates_to_false!)
           send(:"after_#{lifecycle}", callback_object, :unless => :evaluates_to_true!)
           send(:"around_#{lifecycle}", callback_object)
+          send(:"before_#{lifecycle}", other_callback_object)
+          
           define_method(:shake!){}
           define_method(:dance!){}
           define_method(:giggle!){}
@@ -114,6 +128,16 @@ describe Shoulda::Callback::Matchers::ActiveModel do
         it "should have a meaningful description" do
           matcher = callback(@callback_object_class).before(lifecycle)
           matcher.description.should == "callback Callback before #{lifecycle}"
+        end
+        it "should have a meaningful error if it fails with an inexistent method on a model" do
+          matcher = callback(:wiggle!).before(lifecycle)
+          matcher.matches?(@model).should be_false
+          matcher.failure_message.should == "callback wiggle! is listed as a callback before #{lifecycle}, but the model does not respond to wiggle! (using respond_to?(:wiggle!, true)"
+        end
+        it "should have a meaningful error if it fails with an inexistent method on a callback class" do
+          matcher = callback(@other_callback_object_class).before(lifecycle)
+          matcher.matches?(@model).should be_false
+          matcher.failure_message.should == "callback OtherCallback is listed as a callback before #{lifecycle}, but the given object does not respond to before_#{lifecycle} (using respond_to?(:before_#{lifecycle}, true)"
         end
       end
       context "with conditions" do
@@ -169,7 +193,7 @@ describe Shoulda::Callback::Matchers::ActiveModel do
       callback_object = @callback_object_class.new
       callback_object2 = @callback_object_class2.new
 
-      @callback_object_not_found_class = define_model(:callback_not_fount) do
+      @callback_object_not_found_class = define_model(:callback_not_found) do
         define_method("before_validation"){}
         define_method("after_validation"){}
       end
@@ -338,7 +362,7 @@ describe Shoulda::Callback::Matchers::ActiveModel do
     end
   end
   
-  [:initialize, :find, :touch].each do |lifecycle|
+  [:initialize, :find, :touch, :rollback, :commit].each do |lifecycle|
     
     context "on #{lifecycle}" do
       before do
@@ -353,7 +377,7 @@ describe Shoulda::Callback::Matchers::ActiveModel do
         callback_object = @callback_object_class.new
         callback_object2 = @callback_object_class2.new
 
-        @callback_object_not_found_class = define_model(:callback_not_fount) do
+        @callback_object_not_found_class = define_model(:callback_not_found) do
           define_method("after_#{lifecycle}"){}
         end
 

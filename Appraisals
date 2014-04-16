@@ -1,3 +1,9 @@
+appraise '4.1' do
+  gem 'rails', '~>4.1'
+  gem 'jquery-rails'
+  gem 'sass-rails'
+end
+
 appraise '4.0' do
   gem 'rails', '~>4.0'
   gem 'jquery-rails'

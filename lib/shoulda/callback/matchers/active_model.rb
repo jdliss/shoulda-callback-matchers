@@ -1,3 +1,5 @@
+require 'ostruct'
+
 module Shoulda # :nodoc:
   module Callback # :nodoc:
     module Matchers # :nodoc:
@@ -56,35 +58,56 @@ module Shoulda # :nodoc:
           end
 
           def matches?(subject)
+            return false if @failure_message.present?
+            
             unless @lifecycle
               @failure_message = "callback #{@method} can not be tested against an undefined lifecycle, use .before, .after or .around"
               false
             else
-              callbacks = subject.send(:"_#{@lifecycle}_callbacks").dup
-              callbacks = callbacks.select do |callback|
-                subject.respond_to?(callback.filter) &&
-                is_callback?(subject, callback) && 
-                callback.kind == @hook && 
+              callbacks = subject.send(:"_#{@lifecycle}_callbacks")
+              callbacks.any? do |callback|
+                has_callback?(subject, callback) &&
+                matches_hook?(callback) && 
                 matches_conditions?(callback) && 
-                matches_optional_lifecycle?(callback)
+                matches_optional_lifecycle?(callback) &&
+                callback_method_exists?(subject, callback)
               end
-              callbacks.size > 0
             end
           end
-
-          def is_callback?(subject, callback)
-            is_callback_object?(subject, callback) || is_callback_symbol?(subject, callback)
+          
+          def callback_method_exists? object, callback
+            if is_class_callback?(object, callback) && !callback_object(object, callback).respond_to?(:"#{@hook}_#{@lifecycle}", true)
+              @failure_message = "callback #{@method} is listed as a callback #{@hook} #{@lifecycle}#{optional_lifecycle_phrase}#{condition_phrase}, but the given object does not respond to #{@hook}_#{@lifecycle} (using respond_to?(:#{@hook}_#{@lifecycle}, true)"
+              false
+            elsif !is_class_callback?(object, callback) && !object.respond_to?(callback.filter, true)
+              @failure_message = "callback #{@method} is listed as a callback #{@hook} #{@lifecycle}#{optional_lifecycle_phrase}#{condition_phrase}, but the model does not respond to #{@method} (using respond_to?(:#{@method}, true)"
+              false
+            else
+              true
+            end
           end
           
-          def is_callback_symbol?(subject, callback)
-            callback.filter == @method
+          def matches_hook? callback
+            callback.kind == @hook
           end
 
-          def is_callback_object?(subject, callback)
-            @method.kind_of?(Class) && 
-            callback.filter.match(/^_callback/) && 
-            subject.respond_to?("#{callback.filter}_object") && 
-            subject.send("#{callback.filter}_object").class == @method 
+          def has_callback?(subject, callback)
+            has_callback_object?(subject, callback) || has_callback_method?(callback) || has_callback_class?(callback)
+          end
+          
+          def has_callback_method?(callback)
+            callback.filter == @method
+          end
+          
+          def has_callback_class?(callback)
+            class_callback_required? && callback.filter.is_a?(@method)
+          end
+
+          def has_callback_object?(subject, callback)
+            callback.filter.respond_to?(:match) &&
+            callback.filter.match(/\A_callback/) && 
+            subject.respond_to?(:"#{callback.filter}_object") && 
+            callback_object(subject, callback).class == @method 
           end
         
           def failure_message
@@ -102,11 +125,20 @@ module Shoulda # :nodoc:
           private
           
             def matches_conditions?(callback)
-              !@condition || callback.options[@condition_type].include?(@condition)
+              if rails_4_1?
+                !@condition || callback.instance_variable_get(:"@#{@condition_type}").include?(@condition)
+              else
+                !@condition || callback.options[@condition_type].include?(@condition)
+              end
             end
           
             def matches_optional_lifecycle?(callback)
-              !@optional_lifecycle || callback.options[:if].include?(lifecycle_context_string)
+              if rails_4_1?
+                if_conditions = callback.instance_variable_get(:@if)
+                !@optional_lifecycle || if_conditions.include?(lifecycle_context_string) || active_model_proc_matches_optional_lifecycle?(if_conditions)
+              else
+                !@optional_lifecycle || callback.options[:if].include?(lifecycle_context_string)
+              end
             end
           
             def condition_phrase
@@ -118,11 +150,49 @@ module Shoulda # :nodoc:
             end
             
             def lifecycle_context_string
-              if ActiveRecord::VERSION::MAJOR == 4
+              if rails_4?
                 "[:#{@optional_lifecycle}].include? self.validation_context"
               else
                 "self.validation_context == :#{@optional_lifecycle}"
               end
+            end
+            
+            def active_model_proc_matches_optional_lifecycle? if_conditions
+              if_conditions.select{|i| i.is_a?(Proc) }.any? do |condition|
+                condition.call OpenStruct.new validation_context: @optional_lifecycle
+              end
+            end
+            
+            def class_callback_required?
+              !@method.is_a?(Symbol) && !@method.is_a?(String)
+            end
+            
+            def is_class_callback?(subject, callback)
+              !callback_object(subject, callback).is_a?(Symbol) && !callback_object(subject, callback).is_a?(String)
+            end
+            
+            def callback_object(subject, callback)
+              if rails_3? && !callback.filter.is_a?(Symbol)
+                subject.send("#{callback.filter}_object")
+              else
+                callback.filter
+              end
+            end
+            
+            def rails_4_1?
+              rails_4? && ActiveRecord::VERSION::MINOR == 1
+            end
+            
+            def rails_4_0?
+              rails_4? && ActiveRecord::VERSION::MINOR == 0
+            end
+            
+            def rails_4?
+              ActiveRecord::VERSION::MAJOR == 4
+            end
+            
+            def rails_3?
+              ActiveRecord::VERSION::MAJOR == 3
             end
 
         end
