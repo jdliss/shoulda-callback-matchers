@@ -1,6 +1,8 @@
-Matchers to test before, after and around hooks(currently supports gsymbol and object callbacks):
-    
-Symbol Callbacks:
+Matchers to test before, after and around hooks(currently supports method and object callbacks):
+
+## Usage
+
+Method Callbacks:
 
     describe Post do
       it { should callback(:count_comments).before(:save) }
@@ -18,10 +20,21 @@ Symbol Callbacks:
 Object Callbacks:
 
     class CallbackClass
-      def before_save{}
-      def after_create{}
-      def before_validation{}
-      def after_find{}
+      def before_save
+				...
+			end
+			
+      def after_create
+				...
+			end
+			
+      def before_validation
+				...
+			end
+			
+      def after_find
+				...
+			end
     end
     
     describe Post do
@@ -37,12 +50,16 @@ Object Callbacks:
       it { should callback(CallbackClass).before(:destroy) }
     end
 
-Be aware that this tests for the method call and not the method itself. It makes testing via triggering the callback events (validation, save) unnecessary, but you should still test the called procedure seperately.
+This will test:
+- the method call
+- method existence
+
+Either on the model itself or on the callback object. Be aware that obviously this does not test the callback method or object itself. It makes testing via triggering the callback events (validation, save) unnecessary, but you still have to test the called procedure seperately.
 
 In Rails 3 or 4 and Bundler, add the following to your Gemfile:
 
     group :test do
-      gem "shoulda-callback-matchers", "~> 0.4"
+      gem "shoulda-callback-matchers", "~> 1.0"
     end
 
 This gem uses semantic versioning, so you won't have incompability issues with patches.
@@ -61,12 +78,12 @@ This gem is maintained by me and its contributors,
 Shoulda is maintained and funded by [thoughtbot](http://thoughtbot.com/community)
 
 ## Contributors & Contributions
-- @pvertenten
+- @pvertenten (callback objects)
 
 Let's make this gem useful, send me a PR if you've discovered an issue you'd like to fix!
 
 ## License
 
-Shoulda is Copyright © 2006-2012 thoughtbot, inc.
-Callback Matchers is Copyright © 2012 Beat Richartz
+Shoulda is Copyright © 2006-2014 thoughtbot, inc.
+Callback Matchers is Copyright © 2014 Beat Richartz
 It is free software, and may be redistributed under the terms specified in the MIT-LICENSE file.
