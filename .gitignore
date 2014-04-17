@@ -1,3 +1,7 @@
+.DS_STORE
+.rspec
+.ruby-gemset
+.ruby-version
 test/*/log/*.log
 doc
 coverage
@@ -8,6 +12,7 @@ pkg
 tags
 tmp
 .bundle
+.git
 *.rbc
 *.gem
 gemfiles/*
