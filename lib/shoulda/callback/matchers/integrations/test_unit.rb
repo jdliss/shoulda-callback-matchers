@@ -1,15 +1,17 @@
 # :enddoc:
 
+include Shoulda::Callback::Matchers::RailsVersionHelper
+
 # in environments where test/unit is not required, this is necessary
 unless defined?(Test::Unit::TestCase)
   begin
-    require 'test/unit/testcase'
+    require rails_4_1? ? 'minitest' : 'test/unit/testcase'
   rescue LoadError
     # silent
   end
 end
 
-if defined?(ActiveRecord)
+if defined?(::ActiveRecord)
   require 'shoulda/callback/matchers/active_model'
 
   module Test
@@ -20,7 +22,7 @@ if defined?(ActiveRecord)
       end
     end
   end
-elsif defined?(ActiveModel)
+elsif defined?(::ActiveModel)
   require 'shoulda/callback/matchers/active_model'
   
   module Test
