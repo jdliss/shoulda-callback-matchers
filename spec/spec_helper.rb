@@ -7,7 +7,6 @@ ENV['RAILS_ENV'] = 'test'
 ENV['BUNDLE_GEMFILE'] ||= TESTAPP_ROOT + '/Gemfile'
 
 require "#{TESTAPP_ROOT}/config/environment"
-require 'bourne'
 require 'shoulda-callback-matchers'
 require 'rspec/rails'
 
@@ -20,7 +19,3 @@ Dir[File.join(PROJECT_ROOT, 'spec', 'support', '**', '*.rb')].each { |file| requ
 # Run the migrations
 ActiveRecord::Migration.verbose = false
 ActiveRecord::Migrator.migrate("#{Rails.root}/db/migrate")
-
-RSpec.configure do |config|
-  config.mock_with :mocha
-end
