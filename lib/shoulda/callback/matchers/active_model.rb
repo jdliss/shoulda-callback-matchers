@@ -30,6 +30,7 @@ module Shoulda # :nodoc:
             @method = method
           end
         
+          # @todo replace with %i() as soon as 1.9 is deprecated
           [:before, :after, :around].each do |hook|
             define_method hook do |lifecycle|
               @hook = hook
@@ -99,14 +100,14 @@ module Shoulda # :nodoc:
 
           private
           
+          def check_preconditions!
+            check_lifecycle_present!
+          end
+          
           def check_lifecycle_present!
             unless @lifecycle
               raise UsageError.new("callback #{@method} can not be tested against an undefined lifecycle, use .before, .after or .around")
             end
-          end
-          
-          def check_preconditions!
-            check_lifecycle_present!
           end
           
           def precondition_failed?
