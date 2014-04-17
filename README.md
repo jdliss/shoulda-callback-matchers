@@ -13,6 +13,11 @@ Method Callbacks:
       it { should callback(:post_to_twitter).after(:create) }
       it { should callback(:evaluate_if_should_validate).before(:validation) }
       it { should callback(:add_some_convenience_accessors).after(:find) }
+			
+			# with conditions
+			
+      it { should callback(:assign_something).before(:create).if(:this_is_true) }
+      it { should callback(:destroy_something_else).before(:destroy).unless(:this_is_true) }
     end
     
     describe User do
@@ -46,6 +51,10 @@ Object Callbacks:
       it { should callback(CallbackClass).after(:create) }
       it { should callback(CallbackClass).before(:validation) }
       it { should callback(CallbackClass).after(:find) }
+			
+			# with conditions
+      it { should callback(CallbackClass).before(:create).if(:this_is_true) }
+      it { should callback(CallbackClass).after(:find).unless(:is_this_true?) }
     end
     
     describe User do
