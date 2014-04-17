@@ -1,8 +1,8 @@
 rbx = defined?(RUBY_ENGINE) && 'rbx' == RUBY_ENGINE
 
 def already_installed(dep)
-  !Gem::DependencyInstaller.new(:domain => :local).find_gems_with_sources(dep).empty? ||
-  !Gem::DependencyInstaller.new(:domain => :local,:prerelease => true).find_gems_with_sources(dep).empty?
+  !Gem::DependencyInstaller.new(domain: :local).find_gems_with_sources(dep).empty? ||
+  !Gem::DependencyInstaller.new(domain: :local, prerelease: true).find_gems_with_sources(dep).empty?
 end
 
 if rbx
@@ -27,7 +27,7 @@ if rbx
     inst = Gem::DependencyInstaller.new
     dep.each {|d| inst.install d }
   rescue
-    inst = Gem::DependencyInstaller.new(:prerelease => true)
+    inst = Gem::DependencyInstaller.new(prerelease: true)
     begin
       dep.each {|d| inst.install d }
     rescue Exception => e
