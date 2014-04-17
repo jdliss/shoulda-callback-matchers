@@ -1,4 +1,5 @@
-#Shoulda Callback Matchers [![Gem Version](https://badge.fury.io/rb/shoulda-callback-matchers.svg)](http://badge.fury.io/rb/shoulda-callback-matchers) [![Build Status](https://travis-ci.org/beatrichartz/shoulda-callback-matchers.svg?branch=master)](https://travis-ci.org/beatrichartz/shoulda-callback-matchers) [![Code Climate](https://codeclimate.com/github/beatrichartz/shoulda-callback-matchers.png)](https://codeclimate.com/github/beatrichartz/shoulda-callback-matchers) [![Dependency Status](https://gemnasium.com/beatrichartz/shoulda-callback-matchers.svg)](https://gemnasium.com/beatrichartz/shoulda-callback-matchers)
+#Shoulda Callback Matchers
+[![Gem Version](https://badge.fury.io/rb/shoulda-callback-matchers.svg)](http://badge.fury.io/rb/shoulda-callback-matchers) [![Build Status](https://travis-ci.org/beatrichartz/shoulda-callback-matchers.svg?branch=master)](https://travis-ci.org/beatrichartz/shoulda-callback-matchers) [![Code Climate](https://codeclimate.com/github/beatrichartz/shoulda-callback-matchers.png)](https://codeclimate.com/github/beatrichartz/shoulda-callback-matchers) [![Dependency Status](https://gemnasium.com/beatrichartz/shoulda-callback-matchers.svg)](https://gemnasium.com/beatrichartz/shoulda-callback-matchers)
 
 
 Matchers to test before, after and around hooks(currently supports method and object callbacks):
