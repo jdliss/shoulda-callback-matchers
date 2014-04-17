@@ -10,10 +10,6 @@ script: "bundle install && bundle exec rake"
 
 gemfile:
   - gemfiles/4.1.gemfile
-  - gemfiles/4.0.gemfile
-  - gemfiles/3.2.gemfile
-  - gemfiles/3.1.gemfile
-  - gemfiles/3.0.gemfile
 
 matrix:
   allow_failures:
