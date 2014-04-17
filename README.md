@@ -25,20 +25,20 @@ Object Callbacks:
 
     class CallbackClass
       def before_save
-				...
-			end
+        ...
+      end
 			
       def after_create
-				...
-			end
+        ...
+      end
 			
       def before_validation
-				...
-			end
+        ...
+      end
 			
       def after_find
-				...
-			end
+        ...
+      end
     end
     
     describe Post do
