@@ -12,17 +12,12 @@ module ModelBuilder
   end
 
   def create_table(table_name, options = {}, &block)
-    connection = ActiveRecord::Base.connection
-
-    begin
-      connection.execute("DROP TABLE IF EXISTS #{table_name}")
-      connection.create_table(table_name, options, &block)
-      @created_tables << table_name
-      connection
-    rescue Exception => e
-      connection.execute("DROP TABLE IF EXISTS #{table_name}")
-      raise e
-    end
+    connection.create_table(table_name, options, &block)
+    @created_tables << table_name
+    connection
+  rescue Exception => e
+    drop_table(table_name)
+    raise e
   end
 
   def define_model_class(class_name, &block)
@@ -60,14 +55,16 @@ module ModelBuilder
   end
 
   def drop_created_tables
-    connection = ActiveRecord::Base.connection
-
     @created_tables.each do |table_name|
-      connection.execute("DROP TABLE IF EXISTS #{table_name}")
+      drop_table(table_name)
     end
   end
-end
-
-RSpec.configure do |config|
-  config.include ModelBuilder
+  
+  def drop_table table_name
+    connection.execute("DROP TABLE IF EXISTS #{table_name}")
+  end
+  
+  def connection
+    @connection ||= ActiveRecord::Base.connection
+  end
 end

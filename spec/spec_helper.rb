@@ -20,3 +20,9 @@ end
 # Run the migrations
 ActiveRecord::Migration.verbose = false
 ActiveRecord::Migrator.migrate("#{Rails.root}/db/migrate")
+
+
+RSpec.configure do |config|
+  config.include ClassBuilder
+  config.include ModelBuilder
+end
