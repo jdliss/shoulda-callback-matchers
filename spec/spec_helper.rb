@@ -23,9 +23,10 @@ Dir[PROJECT_ROOT.join('spec', 'support', '**', '*.rb')].each do |file|
 end
 
 # Run the migrations
+LOGGER.info "Running the migrations for the testapp..."
 ActiveRecord::Migration.verbose = false
 ActiveRecord::Migrator.migrate("#{Rails.root}/db/migrate")
-
+LOGGER.info "Done"
 
 RSpec.configure do |config|
   config.include ClassBuilder
