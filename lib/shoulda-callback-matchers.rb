@@ -1,1 +1,1 @@
-require 'shoulda/callback/matchers'
+require_relative 'shoulda/callback/matchers'
