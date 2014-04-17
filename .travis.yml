@@ -14,5 +14,3 @@ gemfile:
 matrix:
   allow_failures:
     - rvm: rbx
-    - rvm: jruby-19mode
-    - rvm: jruby-20mode
