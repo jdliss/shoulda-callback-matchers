@@ -4,7 +4,7 @@ describe Shoulda::Callback::Matchers::ActiveModel do
   
   context "invalid use" do
     before do
-      @callback_object_class = define_model(:callback) do
+      @callback_object_class = define_model :callback do
           define_method("before_create"){}
           define_method("after_save"){}
       end
@@ -22,29 +22,21 @@ describe Shoulda::Callback::Matchers::ActiveModel do
       end.new
       
     end
-    it "should return a meaningful failure message when used without a defined lifecycle" do
-      matcher = callback(:dance!)
-      matcher.matches?(@model).should be_false
-      matcher.failure_message.should == "callback dance! can not be tested against an undefined lifecycle, use .before, .after or .around"
-      matcher.negative_failure_message.should == "callback dance! can not be tested against an undefined lifecycle, use .before, .after or .around"
+    it "should return a meaningful error when used without a defined lifecycle" do
+      lambda { callback(:dance!).matches? :foo }.should raise_error Shoulda::Callback::Matchers::ActiveModel::UsageError,
+        "callback dance! can not be tested against an undefined lifecycle, use .before, .after or .around"
     end
-    it "should return a meaningful failure message when used with an optional lifecycle without the original lifecycle being validation" do
-      matcher = callback(:dance!).after(:create).on(:save)
-      matcher.matches?(@model).should be_false
-      matcher.failure_message.should == "The .on option is only valid for the validation lifecycle and cannot be used with create, use with .before(:validation) or .after(:validation)"
-      matcher.negative_failure_message.should == "The .on option is only valid for the validation lifecycle and cannot be used with create, use with .before(:validation) or .after(:validation)"
+    it "should return a meaningful error when used with an optional lifecycle without the original lifecycle being validation" do
+      lambda { callback(:dance!).after(:create).on(:save) }.should raise_error Shoulda::Callback::Matchers::ActiveModel::UsageError,
+        "The .on option is only valid for the validation lifecycle and cannot be used with create, use with .before(:validation) or .after(:validation)"
     end
-    it "should return a meaningful failure message when used without a defined lifecycle" do
-      matcher = callback(@callback_object_class)
-      matcher.matches?(@model).should be_false
-      matcher.failure_message.should == "callback Callback can not be tested against an undefined lifecycle, use .before, .after or .around"
-      matcher.negative_failure_message.should == "callback Callback can not be tested against an undefined lifecycle, use .before, .after or .around"
+    it "should return a meaningful error when used without a defined lifecycle" do
+      lambda { callback(@callback_object_class).matches? :foo }.should raise_error Shoulda::Callback::Matchers::ActiveModel::UsageError,
+        "callback Callback can not be tested against an undefined lifecycle, use .before, .after or .around"
     end
-    it "should return a meaningful failure message when used with an optional lifecycle without the original lifecycle being validation" do
-      matcher = callback(@callback_object_class).after(:create).on(:save)
-      matcher.matches?(@model).should be_false
-      matcher.failure_message.should == "The .on option is only valid for the validation lifecycle and cannot be used with create, use with .before(:validation) or .after(:validation)"
-      matcher.negative_failure_message.should == "The .on option is only valid for the validation lifecycle and cannot be used with create, use with .before(:validation) or .after(:validation)"
+    it "should return a meaningful error when used with an optional lifecycle without the original lifecycle being validation" do
+      lambda { callback(@callback_object_class).after(:create).on(:save) }.should raise_error Shoulda::Callback::Matchers::ActiveModel::UsageError,
+        "The .on option is only valid for the validation lifecycle and cannot be used with create, use with .before(:validation) or .after(:validation)"
     end
   end
   

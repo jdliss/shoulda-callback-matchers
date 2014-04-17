@@ -19,14 +19,14 @@ module Shoulda # :nodoc:
         #   it { should callback(:method).before(:validation).unless(:should_it_not?) }
         #   it { should callback(CallbackClass).before(:validation).unless(:should_it_not?) }
         #
-        def callback(method)
-          CallbackMatcher.new(method)
+        def callback method
+          CallbackMatcher.new method
         end
 
         class CallbackMatcher # :nodoc:
           include RailsVersionHelper
                 
-          def initialize(method)
+          def initialize method
             @method = method
           end
         
@@ -48,31 +48,26 @@ module Shoulda # :nodoc:
             end
           end
         
-          def on(optional_lifecycle)
+          def on optional_lifecycle
             unless @lifecycle == :validation
-              @failure_message = "The .on option is only valid for the validation lifecycle and cannot be used with #{@lifecycle}, use with .before(:validation) or .after(:validation)"
-            else
-              @optional_lifecycle = optional_lifecycle
+              raise UsageError.new("The .on option is only valid for the validation lifecycle and cannot be used with #{@lifecycle}, use with .before(:validation) or .after(:validation)")
             end
+            
+            @optional_lifecycle = optional_lifecycle
           
             self
           end
 
-          def matches?(subject)
-            return false if @failure_message.present?
+          def matches? subject
+            check_preconditions!
             
-            unless @lifecycle
-              @failure_message = "callback #{@method} can not be tested against an undefined lifecycle, use .before, .after or .around"
-              false
-            else
-              callbacks = subject.send(:"_#{@lifecycle}_callbacks")
-              callbacks.any? do |callback|
-                has_callback?(subject, callback) &&
-                matches_hook?(callback) && 
-                matches_conditions?(callback) && 
-                matches_optional_lifecycle?(callback) &&
-                callback_method_exists?(subject, callback)
-              end
+            callbacks = subject.send :"_#{@lifecycle}_callbacks"
+            callbacks.any? do |callback|
+              has_callback?(subject, callback) &&
+              matches_hook?(callback) && 
+              matches_conditions?(callback) && 
+              matches_optional_lifecycle?(callback) &&
+              callback_method_exists?(subject, callback)
             end
           end
           
@@ -87,29 +82,6 @@ module Shoulda # :nodoc:
               true
             end
           end
-          
-          def matches_hook? callback
-            callback.kind == @hook
-          end
-
-          def has_callback?(subject, callback)
-            has_callback_object?(subject, callback) || has_callback_method?(callback) || has_callback_class?(callback)
-          end
-          
-          def has_callback_method?(callback)
-            callback.filter == @method
-          end
-          
-          def has_callback_class?(callback)
-            class_callback_required? && callback.filter.is_a?(@method)
-          end
-
-          def has_callback_object?(subject, callback)
-            callback.filter.respond_to?(:match) &&
-            callback.filter.match(/\A_callback/) && 
-            subject.respond_to?(:"#{callback.filter}_object") && 
-            callback_object(subject, callback).class == @method 
-          end
         
           def failure_message
             @failure_message || "expected #{@method} to be listed as a callback #{@hook} #{@lifecycle}#{optional_lifecycle_phrase}#{condition_phrase}, but was not"
@@ -122,65 +94,106 @@ module Shoulda # :nodoc:
           def description
             "callback #{@method} #{@hook} #{@lifecycle}#{optional_lifecycle_phrase}#{condition_phrase}"
           end
+          
+          
 
           private
           
-            def matches_conditions?(callback)
-              if rails_4_1?
-                !@condition || callback.instance_variable_get(:"@#{@condition_type}").include?(@condition)
-              else
-                !@condition || callback.options[@condition_type].include?(@condition)
-              end
+          def check_lifecycle_present!
+            unless @lifecycle
+              raise UsageError.new("callback #{@method} can not be tested against an undefined lifecycle, use .before, .after or .around")
             end
+          end
           
-            def matches_optional_lifecycle?(callback)
-              if rails_4_1?
-                if_conditions = callback.instance_variable_get(:@if)
-                !@optional_lifecycle || if_conditions.include?(lifecycle_context_string) || active_model_proc_matches_optional_lifecycle?(if_conditions)
-              else
-                !@optional_lifecycle || callback.options[:if].include?(lifecycle_context_string)
-              end
-            end
+          def check_preconditions!
+            check_lifecycle_present!
+          end
           
-            def condition_phrase
-              " #{@condition_type} #{@condition} evaluates to #{@condition_type == :if ? 'true' : 'false'}" if @condition
-            end
+          def precondition_failed?
+            @failure_message.present?
+          end
           
-            def optional_lifecycle_phrase
-              " on #{@optional_lifecycle}" if @optional_lifecycle
+          def matches_hook? callback
+            callback.kind == @hook
+          end
+
+          def has_callback? subject, callback
+            has_callback_object?(subject, callback) || has_callback_method?(callback) || has_callback_class?(callback)
+          end
+          
+          def has_callback_method? callback
+            callback.filter == @method
+          end
+          
+          def has_callback_class? callback
+            class_callback_required? && callback.filter.is_a?(@method)
+          end
+
+          def has_callback_object? subject, callback
+            callback.filter.respond_to?(:match) &&
+            callback.filter.match(/\A_callback/) && 
+            subject.respond_to?(:"#{callback.filter}_object") && 
+            callback_object(subject, callback).class == @method 
+          end
+          
+          def matches_conditions? callback
+            if rails_4_1?
+              !@condition || callback.instance_variable_get(:"@#{@condition_type}").include?(@condition)
+            else
+              !@condition || callback.options[@condition_type].include?(@condition)
             end
-            
-            def lifecycle_context_string
-              if rails_4?
-                "[:#{@optional_lifecycle}].include? self.validation_context"
-              else
-                "self.validation_context == :#{@optional_lifecycle}"
-              end
+          end
+        
+          def matches_optional_lifecycle? callback
+            if rails_4_1?
+              if_conditions = callback.instance_variable_get(:@if)
+              !@optional_lifecycle || if_conditions.include?(lifecycle_context_string) || active_model_proc_matches_optional_lifecycle?(if_conditions)
+            else
+              !@optional_lifecycle || callback.options[:if].include?(lifecycle_context_string)
             end
-            
-            def active_model_proc_matches_optional_lifecycle? if_conditions
-              if_conditions.select{|i| i.is_a?(Proc) }.any? do |condition|
-                condition.call OpenStruct.new validation_context: @optional_lifecycle
-              end
+          end
+        
+          def condition_phrase
+            " #{@condition_type} #{@condition} evaluates to #{@condition_type == :if ? 'true' : 'false'}" if @condition
+          end
+        
+          def optional_lifecycle_phrase
+            " on #{@optional_lifecycle}" if @optional_lifecycle
+          end
+          
+          def lifecycle_context_string
+            if rails_4?
+              "[:#{@optional_lifecycle}].include? self.validation_context"
+            else
+              "self.validation_context == :#{@optional_lifecycle}"
             end
-            
-            def class_callback_required?
-              !@method.is_a?(Symbol) && !@method.is_a?(String)
+          end
+          
+          def active_model_proc_matches_optional_lifecycle? if_conditions
+            if_conditions.select{|i| i.is_a? Proc }.any? do |condition|
+              condition.call OpenStruct.new validation_context: @optional_lifecycle
             end
-            
-            def is_class_callback?(subject, callback)
-              !callback_object(subject, callback).is_a?(Symbol) && !callback_object(subject, callback).is_a?(String)
+          end
+          
+          def class_callback_required?
+            !@method.is_a?(Symbol) && !@method.is_a?(String)
+          end
+          
+          def is_class_callback? subject, callback
+            !callback_object(subject, callback).is_a?(Symbol) && !callback_object(subject, callback).is_a?(String)
+          end
+          
+          def callback_object subject, callback
+            if rails_3? && !callback.filter.is_a?(Symbol)
+              subject.send("#{callback.filter}_object")
+            else
+              callback.filter
             end
-            
-            def callback_object(subject, callback)
-              if rails_3? && !callback.filter.is_a?(Symbol)
-                subject.send("#{callback.filter}_object")
-              else
-                callback.filter
-              end
-            end
+          end
 
         end
+        
+        UsageError = Class.new NameError
       end
     end
   end
