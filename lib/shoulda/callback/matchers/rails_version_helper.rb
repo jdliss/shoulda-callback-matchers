@@ -23,17 +23,17 @@ module Shoulda
         
         def major_version_equals? number
           if active_record?
-            ActiveRecord::VERSION::MAJOR == number
+            ::ActiveRecord::VERSION::MAJOR == number
           else
-            ActiveModel::VERSION::MAJOR == number
+            ::ActiveModel::VERSION::MAJOR == number
           end
         end
         
         def minor_version_equals? number
           if active_record?
-            ActiveRecord::VERSION::MINOR == number
+            ::ActiveRecord::VERSION::MINOR == number
           else
-            ActiveModel::VERSION::MINOR == number
+            ::ActiveModel::VERSION::MINOR == number
           end
         end
         
