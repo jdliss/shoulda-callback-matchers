@@ -17,3 +17,5 @@ tmp
 *.rbc
 *.gem
 gemfiles/.bundle/*
+gemfiles/*.lock
+Gemfile.lock
