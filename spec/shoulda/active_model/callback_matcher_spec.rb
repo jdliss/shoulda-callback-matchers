@@ -28,7 +28,7 @@ describe Shoulda::Callback::Matchers::ActiveModel do
     end
     it "should return a meaningful error when used with an optional lifecycle without the original lifecycle being validation" do
       lambda { callback(:dance!).after(:create).on(:save) }.should raise_error Shoulda::Callback::Matchers::ActiveModel::UsageError,
-        "The .on option is only valid for the validation lifecycle and cannot be used with create, use with .before(:validation) or .after(:validation)"
+        "The .on option is only valid for validation, commit, and rollback and cannot be used with create, use with .before(:validation) or .after(:validation)"
     end
     it "should return a meaningful error when used without a defined lifecycle" do
       lambda { callback(@callback_object_class).matches? :foo }.should raise_error Shoulda::Callback::Matchers::ActiveModel::UsageError,
@@ -36,14 +36,17 @@ describe Shoulda::Callback::Matchers::ActiveModel do
     end
     it "should return a meaningful error when used with an optional lifecycle without the original lifecycle being validation" do
       lambda { callback(@callback_object_class).after(:create).on(:save) }.should raise_error Shoulda::Callback::Matchers::ActiveModel::UsageError,
-        "The .on option is only valid for the validation lifecycle and cannot be used with create, use with .before(:validation) or .after(:validation)"
+        "The .on option is only valid for validation, commit, and rollback and cannot be used with create, use with .before(:validation) or .after(:validation)"
+    end
+    it "should return a meaningful error when used with rollback or commit and before" do
+      lambda { callback(@callback_object_class).before(:commit).on(:destroy) }.should raise_error Shoulda::Callback::Matchers::ActiveModel::UsageError,
+        "Can not callback before or around commit, use after."
     end
   end
   
   [:save, :create, :update, :destroy].each do |lifecycle|
     context "on #{lifecycle}" do
       before do
-
         @callback_object_class = define_model(:callback) do
           define_method("before_#{lifecycle}"){}
           define_method("after_#{lifecycle}"){}
@@ -354,8 +357,179 @@ describe Shoulda::Callback::Matchers::ActiveModel do
     end
   end
   
-  [:initialize, :find, :touch, :rollback, :commit].each do |lifecycle|
+  
+  [:rollback, :commit].each do |lifecycle|
+    context "on #{lifecycle}" do
+      before do
+       @callback_object_class = define_model(:callback) do
+          define_method("after_#{lifecycle}"){}
+        end
+
+        @callback_object_class2 = define_model(:callback2) do
+          define_method("after_#{lifecycle}"){}
+        end
+
+        callback_object = @callback_object_class.new
+        callback_object2 = @callback_object_class2.new
+
+        @callback_object_not_found_class = define_model(:callback_not_found) do
+          define_method("after_#{lifecycle}"){}
+        end
+        @model = define_model(:example, :attr  => :string,
+                                        :other => :integer) do
+          send :"after_#{lifecycle}", :dance!, :if => :evaluates_to_false!
+          send :"after_#{lifecycle}", :shake!, :unless => :evaluates_to_true!
+          send :"after_#{lifecycle}", :dress!, :on => :create
+          send :"after_#{lifecycle}", :shriek!, :on => :update, :unless => :evaluates_to_true!
+          send :"after_#{lifecycle}", :pucker!, :on => :destroy, :if => :evaluates_to_false!
+          send :"after_#{lifecycle}", callback_object, :if => :evaluates_to_false!
+          send :"after_#{lifecycle}", callback_object, :unless => :evaluates_to_true!
+          send :"after_#{lifecycle}", callback_object, :on => :create
+          send :"after_#{lifecycle}", callback_object, :on => :update, :unless => :evaluates_to_true!
+          send :"after_#{lifecycle}", callback_object2, :on => :destroy, :if => :evaluates_to_false!
+          define_method(:dance!){}
+          define_method(:shake!){}
+          define_method(:dress!){}
+          define_method(:shriek!){}
+          define_method(:pucker!){}
+        end.new
+      end
     
+      context "as a simple callback test" do        
+        it "should find the callback after the fact" do
+          @model.should callback(:shake!).after(lifecycle)
+        end
+        it "should not find callbacks that are not there" do
+          @model.should_not callback(:scream!).after(lifecycle)
+        end
+        it "should have a meaningful description" do
+          matcher = callback(:dance!).after(lifecycle)
+          matcher.description.should == "callback dance! after #{lifecycle}"
+        end
+
+        it "should find the callback after the fact" do
+          @model.should callback(@callback_object_class).after(lifecycle)
+        end
+        it "should not find callbacks that are not there" do
+          @model.should_not callback(@callback_object_not_found_class).after(lifecycle)
+        end
+        it "should have a meaningful description" do
+          matcher = callback(@callback_object_class).after(lifecycle)
+          matcher.description.should == "callback Callback after #{lifecycle}"
+        end
+      end
+    
+      context "with additinal lifecycles defined" do
+        it "should find the callback after the fact on create" do
+          @model.should callback(:dress!).after(lifecycle).on(:create)
+        end
+        it "should find the callback after the fact on update" do
+          @model.should callback(:shriek!).after(lifecycle).on(:update)
+        end
+        it "should find the callback after the fact on save" do
+          @model.should callback(:pucker!).after(lifecycle).on(:destroy)
+        end
+        it "should not find a callback for pucker! after the fact on update" do
+          @model.should_not callback(:pucker!).after(lifecycle).on(:update)
+        end
+        it "should have a meaningful description" do
+          matcher = callback(:dance!).after(lifecycle).on(:update)
+          matcher.description.should == "callback dance! after #{lifecycle} on update"
+        end
+
+        it "should find the callback before the fact on create" do
+          @model.should callback(@callback_object_class).after(lifecycle).on(:create)
+        end
+        it "should find the callback after the fact on update" do
+          @model.should callback(@callback_object_class).after(lifecycle).on(:update)
+        end
+        it "should find the callback after the fact on save" do
+          @model.should callback(@callback_object_class2).after(lifecycle).on(:destroy)
+        end
+        it "should not find a callback for Callback after the fact on update" do
+          @model.should_not callback(@callback_object_class2).after(lifecycle).on(:update)
+        end
+        it "should have a meaningful description" do
+          matcher = callback(@callback_object_class).after(lifecycle).on(:update)
+          matcher.description.should == "callback Callback after #{lifecycle} on update"
+        end
+      end
+    
+      context "with conditions" do
+        it "should match the if condition" do
+          @model.should callback(:dance!).after(lifecycle).if(:evaluates_to_false!)
+        end
+        it "should match the unless condition" do
+          @model.should callback(:shake!).after(lifecycle).unless(:evaluates_to_true!)
+        end
+        it "should not find callbacks not matching the conditions" do
+          @model.should_not callback(:giggle!).after(lifecycle).unless(:evaluates_to_false!)
+        end
+        it "should not find callbacks that are not there entirely" do
+          @model.should_not callback(:scream!).after(lifecycle).unless(:evaluates_to_false!)
+        end
+        it "should have a meaningful description" do
+          matcher = callback(:dance!).after(lifecycle).unless(:evaluates_to_false!)
+          matcher.description.should == "callback dance! after #{lifecycle} unless evaluates_to_false! evaluates to false"
+        end
+
+        it "should match the if condition" do
+          @model.should callback(@callback_object_class).after(lifecycle).if(:evaluates_to_false!)
+        end
+        it "should match the unless condition" do
+          @model.should callback(@callback_object_class).after(lifecycle).unless(:evaluates_to_true!)
+        end
+        it "should not find callbacks not matching the conditions" do
+          @model.should_not callback(@callback_object_class).after(lifecycle).unless(:evaluates_to_false!)
+        end
+        it "should not find callbacks that are not there entirely" do
+          @model.should_not callback(@callback_object_not_found_class).after(lifecycle).unless(:evaluates_to_false!)
+        end
+        it "should have a meaningful description" do
+          matcher = callback(@callback_object_class).after(lifecycle).unless(:evaluates_to_false!)
+          matcher.description.should == "callback Callback after #{lifecycle} unless evaluates_to_false! evaluates to false"
+        end
+      end
+    
+      context "with conditions and additional lifecycles" do
+        it "should find the callback before the fact on create" do
+          @model.should callback(:dress!).after(lifecycle).on(:create)
+        end
+        it "should find the callback after the fact on update with the unless condition" do
+          @model.should callback(:shriek!).after(lifecycle).on(:update).unless(:evaluates_to_true!)
+        end
+        it "should find the callback after the fact on save with the if condition" do
+          @model.should callback(:pucker!).after(lifecycle).on(:destroy).if(:evaluates_to_false!)
+        end
+        it "should not find a callback for pucker! after the fact on save with the wrong condition" do
+          @model.should_not callback(:pucker!).after(lifecycle).on(:destroy).unless(:evaluates_to_false!)
+        end
+        it "should have a meaningful description" do
+          matcher = callback(:dance!).after(lifecycle).on(:save).unless(:evaluates_to_false!)
+          matcher.description.should == "callback dance! after #{lifecycle} on save unless evaluates_to_false! evaluates to false"
+        end
+
+        it "should find the callback before the fact on create" do
+          @model.should callback(@callback_object_class).after(lifecycle).on(:create)
+        end
+        it "should find the callback after the fact on update with the unless condition" do
+          @model.should callback(@callback_object_class).after(lifecycle).on(:update).unless(:evaluates_to_true!)
+        end
+        it "should find the callback after the fact on save with the if condition" do
+          @model.should callback(@callback_object_class2).after(lifecycle).on(:destroy).if(:evaluates_to_false!)
+        end
+        it "should not find a callback for Callback after the fact on save with the wrong condition" do
+          @model.should_not callback(@callback_object_class).after(lifecycle).on(:destroy).unless(:evaluates_to_false!)
+        end
+        it "should have a meaningful description" do
+          matcher = callback(@callback_object_class).after(lifecycle).on(:destroy).unless(:evaluates_to_false!)
+          matcher.description.should == "callback Callback after #{lifecycle} on destroy unless evaluates_to_false! evaluates to false"
+        end
+      end
+    end
+  end
+  
+  [:initialize, :find, :touch].each do |lifecycle|
     context "on #{lifecycle}" do
       before do
 

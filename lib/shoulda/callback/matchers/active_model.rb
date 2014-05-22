@@ -24,8 +24,10 @@ module Shoulda # :nodoc:
         end
 
         class CallbackMatcher # :nodoc:
+          VALID_OPTIONAL_LIFECYCLES = [:validation, :commit, :rollback].freeze
+          
           include RailsVersionHelper
-                
+          
           def initialize method
             @method = method
           end
@@ -35,7 +37,8 @@ module Shoulda # :nodoc:
             define_method hook do |lifecycle|
               @hook = hook
               @lifecycle = lifecycle
-
+              check_for_undefined_callbacks!
+              
               self
             end
           end
@@ -50,9 +53,7 @@ module Shoulda # :nodoc:
           end
         
           def on optional_lifecycle
-            unless @lifecycle == :validation
-              raise UsageError.new("The .on option is only valid for the validation lifecycle and cannot be used with #{@lifecycle}, use with .before(:validation) or .after(:validation)")
-            end
+            check_for_valid_optional_lifecycles!
             
             @optional_lifecycle = optional_lifecycle
           
@@ -96,8 +97,6 @@ module Shoulda # :nodoc:
             "callback #{@method} #{@hook} #{@lifecycle}#{optional_lifecycle_phrase}#{condition_phrase}"
           end
           
-          
-
           private
           
           def check_preconditions!
@@ -106,7 +105,19 @@ module Shoulda # :nodoc:
           
           def check_lifecycle_present!
             unless @lifecycle
-              raise UsageError.new("callback #{@method} can not be tested against an undefined lifecycle, use .before, .after or .around")
+              raise UsageError, "callback #{@method} can not be tested against an undefined lifecycle, use .before, .after or .around", caller
+            end
+          end
+          
+          def check_for_undefined_callbacks!
+            if [:rollback, :commit].include?(@lifecycle) && @hook != :after
+              raise UsageError, "Can not callback before or around #{@lifecycle}, use after.", caller
+            end
+          end
+          
+          def check_for_valid_optional_lifecycles!
+            unless VALID_OPTIONAL_LIFECYCLES.include?(@lifecycle)
+              raise UsageError, "The .on option is only valid for #{VALID_OPTIONAL_LIFECYCLES.to_sentence} and cannot be used with #{@lifecycle}, use with .before(:validation) or .after(:validation)", caller
             end
           end
           
@@ -164,15 +175,31 @@ module Shoulda # :nodoc:
           
           def lifecycle_context_string
             if rails_4?
+              rails_4_lifecycle_context_string
+            else
+              rails_3_lifecycle_context_string
+            end
+          end
+          
+          def rails_3_lifecycle_context_string
+            if @lifecycle == :validation
+              "self.validation_context == :#{@optional_lifecycle}"
+            else
+              "transaction_include_action?(:#{@optional_lifecycle})"
+            end
+          end
+          
+          def rails_4_lifecycle_context_string
+            if @lifecycle == :validation
               "[:#{@optional_lifecycle}].include? self.validation_context"
             else
-              "self.validation_context == :#{@optional_lifecycle}"
+              "transaction_include_any_action?([:#{@optional_lifecycle}])"
             end
           end
           
           def active_model_proc_matches_optional_lifecycle? if_conditions
             if_conditions.select{|i| i.is_a? Proc }.any? do |condition|
-              condition.call OpenStruct.new validation_context: @optional_lifecycle
+              condition.call ValidationContext.new(@optional_lifecycle)
             end
           end
           
@@ -194,6 +221,7 @@ module Shoulda # :nodoc:
 
         end
         
+        ValidationContext = Struct.new :validation_context
         UsageError = Class.new NameError
       end
     end
