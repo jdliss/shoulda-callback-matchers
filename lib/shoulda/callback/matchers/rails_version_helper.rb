@@ -8,7 +8,7 @@ module Shoulda
         end
   
         def rails_4_0?
-          rails_4? && vminor_version_equals?(0)
+          rails_4? && minor_version_equals?(0)
         end
   
         def rails_4?

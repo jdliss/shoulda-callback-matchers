@@ -212,7 +212,7 @@ module Shoulda # :nodoc:
           end
           
           def callback_object subject, callback
-            if rails_3? && !callback.filter.is_a?(Symbol)
+            if (rails_3? || rails_4_0?) && !callback.filter.is_a?(Symbol)
               subject.send("#{callback.filter}_object")
             else
               callback.filter
