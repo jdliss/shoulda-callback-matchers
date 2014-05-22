@@ -17,4 +17,3 @@ tmp
 *.rbc
 *.gem
 gemfiles/*
-Gemfile.lock
