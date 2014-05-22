@@ -16,4 +16,4 @@ tmp
 .zedstate
 *.rbc
 *.gem
-gemfiles/*
+gemfiles/.bundle/*
