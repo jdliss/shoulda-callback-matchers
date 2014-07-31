@@ -89,8 +89,12 @@ module Shoulda # :nodoc:
             @failure_message || "expected #{@method} to be listed as a callback #{@hook} #{@lifecycle}#{optional_lifecycle_phrase}#{condition_phrase}, but was not"
           end
         
-          def negative_failure_message
+          def failure_message_when_negated
             @failure_message || "expected #{@method} not to be listed as a callback #{@hook} #{@lifecycle}#{optional_lifecycle_phrase}#{condition_phrase}, but was"
+          end
+
+          def negative_failure_message
+            failure_message_when_negated
           end
 
           def description
