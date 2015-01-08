@@ -75,17 +75,21 @@ Either on the model itself or on the callback object. Be aware that obviously th
 
 In Rails 3 or 4 and Bundler, add the following to your Gemfile:
 
-    group :test do
-      gem 'shoulda-callback-matchers', '~> 1.1.1'
-    end
+````ruby
+group :test do
+  gem 'shoulda-callback-matchers', '~> 1.1.1'
+end
+````
 
 This gem uses semantic versioning, so you won't have incompability issues with patches.
 
 rspec-rails needs to be in the development group so that Rails generators work.
 
-    group :development, :test do
-      gem "rspec-rails"
-    end
+````ruby
+group :development, :test do
+  gem "rspec-rails"
+end
+````
 
 Shoulda will automatically include matchers into the appropriate example groups.
 
