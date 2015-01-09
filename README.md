@@ -8,60 +8,64 @@ Matchers to test before, after and around hooks(currently supports method and ob
 
 Method Callbacks:
 
-    describe Post do
-      it { should callback(:count_comments).before(:save) }
-      it { should callback(:post_to_twitter).after(:create) }
-      it { should callback(:evaluate_if_should_validate).before(:validation) }
-      it { should callback(:add_some_convenience_accessors).after(:find) }
-			
-			# with conditions
-			
-      it { should callback(:assign_something).before(:create).if(:this_is_true) }
-      it { should callback(:destroy_something_else).before(:destroy).unless(:this_is_true) }
-    end
-    
-    describe User do
-      it { should_not callback(:make_email_validation_ready!).before(:validation).on(:update) }
-      it { should callback(:make_email_validation_ready!).before(:validation).on(:create) }
-      it { should callback(:update_user_count).before(:destroy) }
-    end
+````ruby
+describe Post do
+  it { should callback(:count_comments).before(:save) }
+  it { should callback(:post_to_twitter).after(:create) }
+  it { should callback(:evaluate_if_should_validate).before(:validation) }
+  it { should callback(:add_some_convenience_accessors).after(:find) }
+
+  # with conditions
+
+  it { should callback(:assign_something).before(:create).if(:this_is_true) }
+  it { should callback(:destroy_something_else).before(:destroy).unless(:this_is_true) }
+end
+
+describe User do
+  it { should_not callback(:make_email_validation_ready!).before(:validation).on(:update) }
+  it { should callback(:make_email_validation_ready!).before(:validation).on(:create) }
+  it { should callback(:update_user_count).before(:destroy) }
+end
+````
 
 Object Callbacks:
 
-    class CallbackClass
-      def before_save
-        ...
-      end
-			
-      def after_create
-        ...
-      end
-			
-      def before_validation
-        ...
-      end
-			
-      def after_find
-        ...
-      end
-    end
-    
-    describe Post do
-      it { should callback(CallbackClass).before(:save) }
-      it { should callback(CallbackClass).after(:create) }
-      it { should callback(CallbackClass).before(:validation) }
-      it { should callback(CallbackClass).after(:find) }
-			
-			# with conditions
-      it { should callback(CallbackClass).before(:create).if(:this_is_true) }
-      it { should callback(CallbackClass).after(:find).unless(:is_this_true?) }
-    end
-    
-    describe User do
-      it { should_not callback(CallbackClass).before(:validation).on(:update) }
-      it { should callback(CallbackClass).before(:validation).on(:create) }
-      it { should callback(CallbackClass).before(:destroy) }
-    end
+````ruby
+class CallbackClass
+  def before_save
+    ...
+  end
+
+  def after_create
+    ...
+  end
+
+  def before_validation
+    ...
+  end
+
+  def after_find
+    ...
+  end
+end
+
+describe Post do
+  it { should callback(CallbackClass).before(:save) }
+  it { should callback(CallbackClass).after(:create) }
+  it { should callback(CallbackClass).before(:validation) }
+  it { should callback(CallbackClass).after(:find) }
+
+	# with conditions
+  it { should callback(CallbackClass).before(:create).if(:this_is_true) }
+  it { should callback(CallbackClass).after(:find).unless(:is_this_true?) }
+end
+
+describe User do
+  it { should_not callback(CallbackClass).before(:validation).on(:update) }
+  it { should callback(CallbackClass).before(:validation).on(:create) }
+  it { should callback(CallbackClass).before(:destroy) }
+end
+````
 
 This will test:
 - the method call
@@ -71,17 +75,21 @@ Either on the model itself or on the callback object. Be aware that obviously th
 
 In Rails 3 or 4 and Bundler, add the following to your Gemfile:
 
-    group :test do
-      gem "shoulda-callback-matchers", "~> 1.0"
-    end
+````ruby
+group :test do
+  gem 'shoulda-callback-matchers', '~> 1.1.1'
+end
+````
 
 This gem uses semantic versioning, so you won't have incompability issues with patches.
 
 rspec-rails needs to be in the development group so that Rails generators work.
 
-    group :development, :test do
-      gem "rspec-rails"
-    end
+````ruby
+group :development, :test do
+  gem "rspec-rails"
+end
+````
 
 Shoulda will automatically include matchers into the appropriate example groups.
 
