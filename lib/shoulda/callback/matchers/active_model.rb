@@ -153,7 +153,7 @@ module Shoulda # :nodoc:
           end
           
           def matches_conditions? callback
-            if rails_version == '4.1'
+            if rails_version >= '4.1'
               !@condition || callback.instance_variable_get(:"@#{@condition_type}").include?(@condition)
             else
               !@condition || callback.options[@condition_type].include?(@condition)
@@ -161,7 +161,7 @@ module Shoulda # :nodoc:
           end
         
           def matches_optional_lifecycle? callback
-            if rails_version == '4.1'
+            if rails_version >= '4.1'
               if_conditions = callback.instance_variable_get(:@if)
               !@optional_lifecycle || if_conditions.include?(lifecycle_context_string) || active_model_proc_matches_optional_lifecycle?(if_conditions)
             else
