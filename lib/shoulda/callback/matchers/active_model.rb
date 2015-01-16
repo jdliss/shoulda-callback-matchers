@@ -153,7 +153,7 @@ module Shoulda # :nodoc:
           end
           
           def matches_conditions? callback
-            if rails_4_1?
+            if rails_version == '4.1'
               !@condition || callback.instance_variable_get(:"@#{@condition_type}").include?(@condition)
             else
               !@condition || callback.options[@condition_type].include?(@condition)
@@ -161,7 +161,7 @@ module Shoulda # :nodoc:
           end
         
           def matches_optional_lifecycle? callback
-            if rails_4_1?
+            if rails_version == '4.1'
               if_conditions = callback.instance_variable_get(:@if)
               !@optional_lifecycle || if_conditions.include?(lifecycle_context_string) || active_model_proc_matches_optional_lifecycle?(if_conditions)
             else
@@ -178,7 +178,7 @@ module Shoulda # :nodoc:
           end
           
           def lifecycle_context_string
-            if rails_4?
+            if rails_version >= '4.0'
               rails_4_lifecycle_context_string
             else
               rails_3_lifecycle_context_string
@@ -216,7 +216,7 @@ module Shoulda # :nodoc:
           end
           
           def callback_object subject, callback
-            if (rails_3? || rails_4_0?) && !callback.filter.is_a?(Symbol)
+            if (rails_version >= '3.0' && rails_version < '4.1') && !callback.filter.is_a?(Symbol)
               subject.send("#{callback.filter}_object")
             else
               callback.filter
