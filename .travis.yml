@@ -16,3 +16,13 @@ gemfile:
   - gemfiles/rails_4.0.gemfile
   - gemfiles/rails_3.2.gemfile
   - gemfiles/rails_3.1.gemfile
+
+
+matrix:
+  allow_failures:
+    - rvm: 2.2.0
+      gemfile: gemfiles/rails_4.0.gemfile
+    - rvm: 2.2.0
+      gemfile: gemfiles/rails_3.2.gemfile
+    - rvm: 2.2.0
+      gemfile: gemfiles/rails_3.1.gemfile
