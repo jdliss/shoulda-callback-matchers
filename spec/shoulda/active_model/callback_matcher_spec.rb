@@ -23,23 +23,23 @@ describe Shoulda::Callback::Matchers::ActiveModel do
 
     end
     it "should return a meaningful error when used without a defined lifecycle" do
-      lambda { callback(:dance!).matches? :foo }.should raise_error Shoulda::Callback::Matchers::ActiveModel::UsageError,
+      expect { callback(:dance!).matches? :foo }.to raise_error Shoulda::Callback::Matchers::ActiveModel::UsageError,
         "callback dance! can not be tested against an undefined lifecycle, use .before, .after or .around"
     end
     it "should return a meaningful error when used with an optional lifecycle without the original lifecycle being validation" do
-      lambda { callback(:dance!).after(:create).on(:save) }.should raise_error Shoulda::Callback::Matchers::ActiveModel::UsageError,
+      expect { callback(:dance!).after(:create).on(:save) }.to raise_error Shoulda::Callback::Matchers::ActiveModel::UsageError,
         "The .on option is only valid for validation, commit, and rollback and cannot be used with create, use with .before(:validation) or .after(:validation)"
     end
     it "should return a meaningful error when used without a defined lifecycle" do
-      lambda { callback(@callback_object_class).matches? :foo }.should raise_error Shoulda::Callback::Matchers::ActiveModel::UsageError,
+      expect { callback(@callback_object_class).matches? :foo }.to raise_error Shoulda::Callback::Matchers::ActiveModel::UsageError,
         "callback Callback can not be tested against an undefined lifecycle, use .before, .after or .around"
     end
     it "should return a meaningful error when used with an optional lifecycle without the original lifecycle being validation" do
-      lambda { callback(@callback_object_class).after(:create).on(:save) }.should raise_error Shoulda::Callback::Matchers::ActiveModel::UsageError,
+      expect { callback(@callback_object_class).after(:create).on(:save) }.to raise_error Shoulda::Callback::Matchers::ActiveModel::UsageError,
         "The .on option is only valid for validation, commit, and rollback and cannot be used with create, use with .before(:validation) or .after(:validation)"
     end
     it "should return a meaningful error when used with rollback or commit and before" do
-      lambda { callback(@callback_object_class).before(:commit).on(:destroy) }.should raise_error Shoulda::Callback::Matchers::ActiveModel::UsageError,
+      expect { callback(@callback_object_class).before(:commit).on(:destroy) }.to raise_error Shoulda::Callback::Matchers::ActiveModel::UsageError,
         "Can not callback before or around commit, use after."
     end
   end
@@ -87,87 +87,87 @@ describe Shoulda::Callback::Matchers::ActiveModel do
       end
       context "as a simple callback test" do
         it "should find the callback before the fact" do
-          @model.should callback(:dance!).before(lifecycle)
+          expect(@model).to callback(:dance!).before(lifecycle)
         end
         it "should find the callback after the fact" do
-          @model.should callback(:shake!).after(lifecycle)
+          expect(@model).to callback(:shake!).after(lifecycle)
         end
         it "should find the callback around the fact" do
-          @model.should callback(:giggle!).around(lifecycle)
+          expect(@model).to callback(:giggle!).around(lifecycle)
         end
         it "should not find callbacks that are not there" do
-          @model.should_not callback(:scream!).around(lifecycle)
+          expect(@model).not_to callback(:scream!).around(lifecycle)
         end
         it "should not find callback_objects around the fact" do
-          @model.should_not callback(:shake!).around(lifecycle)
+          expect(@model).not_to callback(:shake!).around(lifecycle)
         end
         it "should have a meaningful description" do
           matcher = callback(:dance!).before(lifecycle)
-          matcher.description.should == "callback dance! before #{lifecycle}"
+          expect(matcher.description).to eq("callback dance! before #{lifecycle}")
         end
         it "should find the callback_object before the fact" do
-          @model.should callback(@callback_object_class).before(lifecycle)
+          expect(@model).to callback(@callback_object_class).before(lifecycle)
         end
         it "should find the callback_object after the fact" do
-          @model.should callback(@callback_object_class).after(lifecycle)
+          expect(@model).to callback(@callback_object_class).after(lifecycle)
         end
         it "should find the callback_object around the fact" do
-          @model.should callback(@callback_object_class).around(lifecycle)
+          expect(@model).to callback(@callback_object_class).around(lifecycle)
         end
         it "should not find callbacks that are not there" do
-          @model.should_not callback(@callback_object_not_found_class).around(lifecycle)
+          expect(@model).not_to callback(@callback_object_not_found_class).around(lifecycle)
         end
         it "should not find callback_objects around the fact" do
-          @model.should_not callback(@callback_object_not_found_class).around(lifecycle)
+          expect(@model).not_to callback(@callback_object_not_found_class).around(lifecycle)
         end
         it "should have a meaningful description" do
           matcher = callback(@callback_object_class).before(lifecycle)
-          matcher.description.should == "callback Callback before #{lifecycle}"
+          expect(matcher.description).to eq("callback Callback before #{lifecycle}")
         end
         it "should have a meaningful error if it fails with an inexistent method on a model" do
           matcher = callback(:wiggle!).before(lifecycle)
-          matcher.matches?(@model).should eq(false)
-          matcher.failure_message.should eq("callback wiggle! is listed as a callback before #{lifecycle}, but the model does not respond to wiggle! (using respond_to?(:wiggle!, true)")
+          expect(matcher.matches?(@model)).to eq(false)
+          expect(matcher.failure_message).to eq("callback wiggle! is listed as a callback before #{lifecycle}, but the model does not respond to wiggle! (using respond_to?(:wiggle!, true)")
         end
         it "should have a meaningful error if it fails with an inexistent method on a callback class" do
           matcher = callback(@other_callback_object_class).before(lifecycle)
-          matcher.matches?(@model).should eq(false)
-          matcher.failure_message.should eq("callback OtherCallback is listed as a callback before #{lifecycle}, but the given object does not respond to before_#{lifecycle} (using respond_to?(:before_#{lifecycle}, true)")
+          expect(matcher.matches?(@model)).to eq(false)
+          expect(matcher.failure_message).to eq("callback OtherCallback is listed as a callback before #{lifecycle}, but the given object does not respond to before_#{lifecycle} (using respond_to?(:before_#{lifecycle}, true)")
         end
       end
       context "with conditions" do
         it "should match the if condition" do
-          @model.should callback(:dance!).before(lifecycle).if(:evaluates_to_false!)
+          expect(@model).to callback(:dance!).before(lifecycle).if(:evaluates_to_false!)
         end
         it "should match the unless condition" do
-          @model.should callback(:shake!).after(lifecycle).unless(:evaluates_to_true!)
+          expect(@model).to callback(:shake!).after(lifecycle).unless(:evaluates_to_true!)
         end
         it "should not find callbacks not matching the conditions" do
-          @model.should_not callback(:giggle!).around(lifecycle).unless(:evaluates_to_false!)
+          expect(@model).not_to callback(:giggle!).around(lifecycle).unless(:evaluates_to_false!)
         end
         it "should not find callbacks that are not there entirely" do
-          @model.should_not callback(:scream!).before(lifecycle).unless(:evaluates_to_false!)
+          expect(@model).not_to callback(:scream!).before(lifecycle).unless(:evaluates_to_false!)
         end
         it "should have a meaningful description" do
           matcher = callback(:dance!).after(lifecycle).unless(:evaluates_to_false!)
-          matcher.description.should == "callback dance! after #{lifecycle} unless evaluates_to_false! evaluates to false"
+          expect(matcher.description).to eq("callback dance! after #{lifecycle} unless evaluates_to_false! evaluates to false")
         end
 
         it "should match the if condition" do
-          @model.should callback(@callback_object_class).before(lifecycle).if(:evaluates_to_false!)
+          expect(@model).to callback(@callback_object_class).before(lifecycle).if(:evaluates_to_false!)
         end
         it "should match the unless condition" do
-          @model.should callback(@callback_object_class).after(lifecycle).unless(:evaluates_to_true!)
+          expect(@model).to callback(@callback_object_class).after(lifecycle).unless(:evaluates_to_true!)
         end
         it "should not find callbacks not matching the conditions" do
-          @model.should_not callback(@callback_object_class).around(lifecycle).unless(:evaluates_to_false!)
+          expect(@model).not_to callback(@callback_object_class).around(lifecycle).unless(:evaluates_to_false!)
         end
         it "should not find callbacks that are not there entirely" do
-          @model.should_not callback(@callback_object_not_found_class).before(lifecycle).unless(:evaluates_to_false!)
+          expect(@model).not_to callback(@callback_object_not_found_class).before(lifecycle).unless(:evaluates_to_false!)
         end
         it "should have a meaningful description" do
           matcher = callback(@callback_object_class).after(lifecycle).unless(:evaluates_to_false!)
-          matcher.description.should == "callback Callback after #{lifecycle} unless evaluates_to_false! evaluates to false"
+          expect(matcher.description).to eq("callback Callback after #{lifecycle} unless evaluates_to_false! evaluates to false")
         end
       end
     end
@@ -214,145 +214,145 @@ describe Shoulda::Callback::Matchers::ActiveModel do
 
     context "as a simple callback test" do
       it "should find the callback before the fact" do
-        @model.should callback(:dance!).before(:validation)
+        expect(@model).to callback(:dance!).before(:validation)
       end
       it "should find the callback after the fact" do
-        @model.should callback(:shake!).after(:validation)
+        expect(@model).to callback(:shake!).after(:validation)
       end
       it "should not find a callback around the fact" do
-        @model.should_not callback(:giggle!).around(:validation)
+        expect(@model).not_to callback(:giggle!).around(:validation)
       end
       it "should not find callbacks that are not there" do
-        @model.should_not callback(:scream!).around(:validation)
+        expect(@model).not_to callback(:scream!).around(:validation)
       end
       it "should have a meaningful description" do
         matcher = callback(:dance!).before(:validation)
-        matcher.description.should == "callback dance! before validation"
+        expect(matcher.description).to eq("callback dance! before validation")
       end
 
       it "should find the callback before the fact" do
-        @model.should callback(@callback_object_class).before(:validation)
+        expect(@model).to callback(@callback_object_class).before(:validation)
       end
       it "should find the callback after the fact" do
-        @model.should callback(@callback_object_class).after(:validation)
+        expect(@model).to callback(@callback_object_class).after(:validation)
       end
       it "should not find a callback around the fact" do
-        @model.should_not callback(@callback_object_class).around(:validation)
+        expect(@model).not_to callback(@callback_object_class).around(:validation)
       end
       it "should not find callbacks that are not there" do
-        @model.should_not callback(@callback_object_not_found_class).around(:validation)
+        expect(@model).not_to callback(@callback_object_not_found_class).around(:validation)
       end
       it "should have a meaningful description" do
         matcher = callback(@callback_object_class).before(:validation)
-        matcher.description.should == "callback Callback before validation"
+        expect(matcher.description).to eq("callback Callback before validation")
       end
     end
 
     context "with additinal lifecycles defined" do
       it "should find the callback before the fact on create" do
-        @model.should callback(:dress!).before(:validation).on(:create)
+        expect(@model).to callback(:dress!).before(:validation).on(:create)
       end
       it "should find the callback after the fact on update" do
-        @model.should callback(:shriek!).after(:validation).on(:update)
+        expect(@model).to callback(:shriek!).after(:validation).on(:update)
       end
       it "should find the callback after the fact on save" do
-        @model.should callback(:pucker!).after(:validation).on(:save)
+        expect(@model).to callback(:pucker!).after(:validation).on(:save)
       end
       it "should not find a callback for pucker! after the fact on update" do
-        @model.should_not callback(:pucker!).after(:validation).on(:update)
+        expect(@model).not_to callback(:pucker!).after(:validation).on(:update)
       end
       it "should have a meaningful description" do
         matcher = callback(:dance!).after(:validation).on(:update)
-        matcher.description.should == "callback dance! after validation on update"
+        expect(matcher.description).to eq("callback dance! after validation on update")
       end
 
       it "should find the callback before the fact on create" do
-        @model.should callback(@callback_object_class).before(:validation).on(:create)
+        expect(@model).to callback(@callback_object_class).before(:validation).on(:create)
       end
       it "should find the callback after the fact on update" do
-        @model.should callback(@callback_object_class).after(:validation).on(:update)
+        expect(@model).to callback(@callback_object_class).after(:validation).on(:update)
       end
       it "should find the callback after the fact on save" do
-        @model.should callback(@callback_object_class2).after(:validation).on(:save)
+        expect(@model).to callback(@callback_object_class2).after(:validation).on(:save)
       end
       it "should not find a callback for Callback after the fact on update" do
-        @model.should_not callback(@callback_object_class2).after(:validation).on(:update)
+        expect(@model).not_to callback(@callback_object_class2).after(:validation).on(:update)
       end
       it "should have a meaningful description" do
         matcher = callback(@callback_object_class).after(:validation).on(:update)
-        matcher.description.should == "callback Callback after validation on update"
+        expect(matcher.description).to eq("callback Callback after validation on update")
       end
     end
 
     context "with conditions" do
       it "should match the if condition" do
-        @model.should callback(:dance!).before(:validation).if(:evaluates_to_false!)
+        expect(@model).to callback(:dance!).before(:validation).if(:evaluates_to_false!)
       end
       it "should match the unless condition" do
-        @model.should callback(:shake!).after(:validation).unless(:evaluates_to_true!)
+        expect(@model).to callback(:shake!).after(:validation).unless(:evaluates_to_true!)
       end
       it "should not find callbacks not matching the conditions" do
-        @model.should_not callback(:giggle!).around(:validation).unless(:evaluates_to_false!)
+        expect(@model).not_to callback(:giggle!).around(:validation).unless(:evaluates_to_false!)
       end
       it "should not find callbacks that are not there entirely" do
-        @model.should_not callback(:scream!).before(:validation).unless(:evaluates_to_false!)
+        expect(@model).not_to callback(:scream!).before(:validation).unless(:evaluates_to_false!)
       end
       it "should have a meaningful description" do
         matcher = callback(:dance!).after(:validation).unless(:evaluates_to_false!)
-        matcher.description.should == "callback dance! after validation unless evaluates_to_false! evaluates to false"
+        expect(matcher.description).to eq("callback dance! after validation unless evaluates_to_false! evaluates to false")
       end
 
       it "should match the if condition" do
-        @model.should callback(@callback_object_class).before(:validation).if(:evaluates_to_false!)
+        expect(@model).to callback(@callback_object_class).before(:validation).if(:evaluates_to_false!)
       end
       it "should match the unless condition" do
-        @model.should callback(@callback_object_class).after(:validation).unless(:evaluates_to_true!)
+        expect(@model).to callback(@callback_object_class).after(:validation).unless(:evaluates_to_true!)
       end
       it "should not find callbacks not matching the conditions" do
-        @model.should_not callback(@callback_object_class).around(:validation).unless(:evaluates_to_false!)
+        expect(@model).not_to callback(@callback_object_class).around(:validation).unless(:evaluates_to_false!)
       end
       it "should not find callbacks that are not there entirely" do
-        @model.should_not callback(@callback_object_not_found_class).before(:validation).unless(:evaluates_to_false!)
+        expect(@model).not_to callback(@callback_object_not_found_class).before(:validation).unless(:evaluates_to_false!)
       end
       it "should have a meaningful description" do
         matcher = callback(@callback_object_class).after(:validation).unless(:evaluates_to_false!)
-        matcher.description.should == "callback Callback after validation unless evaluates_to_false! evaluates to false"
+        expect(matcher.description).to eq("callback Callback after validation unless evaluates_to_false! evaluates to false")
       end
     end
 
     context "with conditions and additional lifecycles" do
       it "should find the callback before the fact on create" do
-        @model.should callback(:dress!).before(:validation).on(:create)
+        expect(@model).to callback(:dress!).before(:validation).on(:create)
       end
       it "should find the callback after the fact on update with the unless condition" do
-        @model.should callback(:shriek!).after(:validation).on(:update).unless(:evaluates_to_true!)
+        expect(@model).to callback(:shriek!).after(:validation).on(:update).unless(:evaluates_to_true!)
       end
       it "should find the callback after the fact on save with the if condition" do
-        @model.should callback(:pucker!).after(:validation).on(:save).if(:evaluates_to_false!)
+        expect(@model).to callback(:pucker!).after(:validation).on(:save).if(:evaluates_to_false!)
       end
       it "should not find a callback for pucker! after the fact on save with the wrong condition" do
-        @model.should_not callback(:pucker!).after(:validation).on(:save).unless(:evaluates_to_false!)
+        expect(@model).not_to callback(:pucker!).after(:validation).on(:save).unless(:evaluates_to_false!)
       end
       it "should have a meaningful description" do
         matcher = callback(:dance!).after(:validation).on(:save).unless(:evaluates_to_false!)
-        matcher.description.should == "callback dance! after validation on save unless evaluates_to_false! evaluates to false"
+        expect(matcher.description).to eq("callback dance! after validation on save unless evaluates_to_false! evaluates to false")
       end
 
       it "should find the callback before the fact on create" do
-        @model.should callback(@callback_object_class).before(:validation).on(:create)
+        expect(@model).to callback(@callback_object_class).before(:validation).on(:create)
       end
       it "should find the callback after the fact on update with the unless condition" do
-        @model.should callback(@callback_object_class).after(:validation).on(:update).unless(:evaluates_to_true!)
+        expect(@model).to callback(@callback_object_class).after(:validation).on(:update).unless(:evaluates_to_true!)
       end
       it "should find the callback after the fact on save with the if condition" do
-        @model.should callback(@callback_object_class2).after(:validation).on(:save).if(:evaluates_to_false!)
+        expect(@model).to callback(@callback_object_class2).after(:validation).on(:save).if(:evaluates_to_false!)
       end
       it "should not find a callback for Callback after the fact on save with the wrong condition" do
-        @model.should_not callback(@callback_object_class).after(:validation).on(:save).unless(:evaluates_to_false!)
+        expect(@model).not_to callback(@callback_object_class).after(:validation).on(:save).unless(:evaluates_to_false!)
       end
       it "should have a meaningful description" do
         matcher = callback(@callback_object_class).after(:validation).on(:save).unless(:evaluates_to_false!)
-        matcher.description.should == "callback Callback after validation on save unless evaluates_to_false! evaluates to false"
+        expect(matcher.description).to eq("callback Callback after validation on save unless evaluates_to_false! evaluates to false")
       end
     end
   end
@@ -397,133 +397,133 @@ describe Shoulda::Callback::Matchers::ActiveModel do
 
       context "as a simple callback test" do
         it "should find the callback after the fact" do
-          @model.should callback(:shake!).after(lifecycle)
+          expect(@model).to callback(:shake!).after(lifecycle)
         end
         it "should not find callbacks that are not there" do
-          @model.should_not callback(:scream!).after(lifecycle)
+          expect(@model).not_to callback(:scream!).after(lifecycle)
         end
         it "should have a meaningful description" do
           matcher = callback(:dance!).after(lifecycle)
-          matcher.description.should == "callback dance! after #{lifecycle}"
+          expect(matcher.description).to eq("callback dance! after #{lifecycle}")
         end
 
         it "should find the callback after the fact" do
-          @model.should callback(@callback_object_class).after(lifecycle)
+          expect(@model).to callback(@callback_object_class).after(lifecycle)
         end
         it "should not find callbacks that are not there" do
-          @model.should_not callback(@callback_object_not_found_class).after(lifecycle)
+          expect(@model).not_to callback(@callback_object_not_found_class).after(lifecycle)
         end
         it "should have a meaningful description" do
           matcher = callback(@callback_object_class).after(lifecycle)
-          matcher.description.should == "callback Callback after #{lifecycle}"
+          expect(matcher.description).to eq("callback Callback after #{lifecycle}")
         end
       end
 
       context "with additinal lifecycles defined" do
         it "should find the callback after the fact on create" do
-          @model.should callback(:dress!).after(lifecycle).on(:create)
+          expect(@model).to callback(:dress!).after(lifecycle).on(:create)
         end
         it "should find the callback after the fact on update" do
-          @model.should callback(:shriek!).after(lifecycle).on(:update)
+          expect(@model).to callback(:shriek!).after(lifecycle).on(:update)
         end
         it "should find the callback after the fact on save" do
-          @model.should callback(:pucker!).after(lifecycle).on(:destroy)
+          expect(@model).to callback(:pucker!).after(lifecycle).on(:destroy)
         end
         it "should not find a callback for pucker! after the fact on update" do
-          @model.should_not callback(:pucker!).after(lifecycle).on(:update)
+          expect(@model).not_to callback(:pucker!).after(lifecycle).on(:update)
         end
         it "should have a meaningful description" do
           matcher = callback(:dance!).after(lifecycle).on(:update)
-          matcher.description.should == "callback dance! after #{lifecycle} on update"
+          expect(matcher.description).to eq("callback dance! after #{lifecycle} on update")
         end
 
         it "should find the callback before the fact on create" do
-          @model.should callback(@callback_object_class).after(lifecycle).on(:create)
+          expect(@model).to callback(@callback_object_class).after(lifecycle).on(:create)
         end
         it "should find the callback after the fact on update" do
-          @model.should callback(@callback_object_class).after(lifecycle).on(:update)
+          expect(@model).to callback(@callback_object_class).after(lifecycle).on(:update)
         end
         it "should find the callback after the fact on save" do
-          @model.should callback(@callback_object_class2).after(lifecycle).on(:destroy)
+          expect(@model).to callback(@callback_object_class2).after(lifecycle).on(:destroy)
         end
         it "should not find a callback for Callback after the fact on update" do
-          @model.should_not callback(@callback_object_class2).after(lifecycle).on(:update)
+          expect(@model).not_to callback(@callback_object_class2).after(lifecycle).on(:update)
         end
         it "should have a meaningful description" do
           matcher = callback(@callback_object_class).after(lifecycle).on(:update)
-          matcher.description.should == "callback Callback after #{lifecycle} on update"
+          expect(matcher.description).to eq("callback Callback after #{lifecycle} on update")
         end
       end
 
       context "with conditions" do
         it "should match the if condition" do
-          @model.should callback(:dance!).after(lifecycle).if(:evaluates_to_false!)
+          expect(@model).to callback(:dance!).after(lifecycle).if(:evaluates_to_false!)
         end
         it "should match the unless condition" do
-          @model.should callback(:shake!).after(lifecycle).unless(:evaluates_to_true!)
+          expect(@model).to callback(:shake!).after(lifecycle).unless(:evaluates_to_true!)
         end
         it "should not find callbacks not matching the conditions" do
-          @model.should_not callback(:giggle!).after(lifecycle).unless(:evaluates_to_false!)
+          expect(@model).not_to callback(:giggle!).after(lifecycle).unless(:evaluates_to_false!)
         end
         it "should not find callbacks that are not there entirely" do
-          @model.should_not callback(:scream!).after(lifecycle).unless(:evaluates_to_false!)
+          expect(@model).not_to callback(:scream!).after(lifecycle).unless(:evaluates_to_false!)
         end
         it "should have a meaningful description" do
           matcher = callback(:dance!).after(lifecycle).unless(:evaluates_to_false!)
-          matcher.description.should == "callback dance! after #{lifecycle} unless evaluates_to_false! evaluates to false"
+          expect(matcher.description).to eq("callback dance! after #{lifecycle} unless evaluates_to_false! evaluates to false")
         end
 
         it "should match the if condition" do
-          @model.should callback(@callback_object_class).after(lifecycle).if(:evaluates_to_false!)
+          expect(@model).to callback(@callback_object_class).after(lifecycle).if(:evaluates_to_false!)
         end
         it "should match the unless condition" do
-          @model.should callback(@callback_object_class).after(lifecycle).unless(:evaluates_to_true!)
+          expect(@model).to callback(@callback_object_class).after(lifecycle).unless(:evaluates_to_true!)
         end
         it "should not find callbacks not matching the conditions" do
-          @model.should_not callback(@callback_object_class).after(lifecycle).unless(:evaluates_to_false!)
+          expect(@model).not_to callback(@callback_object_class).after(lifecycle).unless(:evaluates_to_false!)
         end
         it "should not find callbacks that are not there entirely" do
-          @model.should_not callback(@callback_object_not_found_class).after(lifecycle).unless(:evaluates_to_false!)
+          expect(@model).not_to callback(@callback_object_not_found_class).after(lifecycle).unless(:evaluates_to_false!)
         end
         it "should have a meaningful description" do
           matcher = callback(@callback_object_class).after(lifecycle).unless(:evaluates_to_false!)
-          matcher.description.should == "callback Callback after #{lifecycle} unless evaluates_to_false! evaluates to false"
+          expect(matcher.description).to eq("callback Callback after #{lifecycle} unless evaluates_to_false! evaluates to false")
         end
       end
 
       context "with conditions and additional lifecycles" do
         it "should find the callback before the fact on create" do
-          @model.should callback(:dress!).after(lifecycle).on(:create)
+          expect(@model).to callback(:dress!).after(lifecycle).on(:create)
         end
         it "should find the callback after the fact on update with the unless condition" do
-          @model.should callback(:shriek!).after(lifecycle).on(:update).unless(:evaluates_to_true!)
+          expect(@model).to callback(:shriek!).after(lifecycle).on(:update).unless(:evaluates_to_true!)
         end
         it "should find the callback after the fact on save with the if condition" do
-          @model.should callback(:pucker!).after(lifecycle).on(:destroy).if(:evaluates_to_false!)
+          expect(@model).to callback(:pucker!).after(lifecycle).on(:destroy).if(:evaluates_to_false!)
         end
         it "should not find a callback for pucker! after the fact on save with the wrong condition" do
-          @model.should_not callback(:pucker!).after(lifecycle).on(:destroy).unless(:evaluates_to_false!)
+          expect(@model).not_to callback(:pucker!).after(lifecycle).on(:destroy).unless(:evaluates_to_false!)
         end
         it "should have a meaningful description" do
           matcher = callback(:dance!).after(lifecycle).on(:save).unless(:evaluates_to_false!)
-          matcher.description.should == "callback dance! after #{lifecycle} on save unless evaluates_to_false! evaluates to false"
+          expect(matcher.description).to eq("callback dance! after #{lifecycle} on save unless evaluates_to_false! evaluates to false")
         end
 
         it "should find the callback before the fact on create" do
-          @model.should callback(@callback_object_class).after(lifecycle).on(:create)
+          expect(@model).to callback(@callback_object_class).after(lifecycle).on(:create)
         end
         it "should find the callback after the fact on update with the unless condition" do
-          @model.should callback(@callback_object_class).after(lifecycle).on(:update).unless(:evaluates_to_true!)
+          expect(@model).to callback(@callback_object_class).after(lifecycle).on(:update).unless(:evaluates_to_true!)
         end
         it "should find the callback after the fact on save with the if condition" do
-          @model.should callback(@callback_object_class2).after(lifecycle).on(:destroy).if(:evaluates_to_false!)
+          expect(@model).to callback(@callback_object_class2).after(lifecycle).on(:destroy).if(:evaluates_to_false!)
         end
         it "should not find a callback for Callback after the fact on save with the wrong condition" do
-          @model.should_not callback(@callback_object_class).after(lifecycle).on(:destroy).unless(:evaluates_to_false!)
+          expect(@model).not_to callback(@callback_object_class).after(lifecycle).on(:destroy).unless(:evaluates_to_false!)
         end
         it "should have a meaningful description" do
           matcher = callback(@callback_object_class).after(lifecycle).on(:destroy).unless(:evaluates_to_false!)
-          matcher.description.should == "callback Callback after #{lifecycle} on destroy unless evaluates_to_false! evaluates to false"
+          expect(matcher.description).to eq("callback Callback after #{lifecycle} on destroy unless evaluates_to_false! evaluates to false")
         end
       end
     end
@@ -569,72 +569,72 @@ describe Shoulda::Callback::Matchers::ActiveModel do
 
       context "as a simple callback test" do
         it "should not find a callback before the fact" do
-          @model.should_not callback(:dance!).before(lifecycle)
+          expect(@model).not_to callback(:dance!).before(lifecycle)
         end
         it "should find the callback after the fact" do
-          @model.should callback(:shake!).after(lifecycle)
+          expect(@model).to callback(:shake!).after(lifecycle)
         end
         it "should not find a callback around the fact" do
-          @model.should_not callback(:giggle!).around(lifecycle)
+          expect(@model).not_to callback(:giggle!).around(lifecycle)
         end
         it "should not find callbacks that are not there" do
-          @model.should_not callback(:scream!).around(lifecycle)
+          expect(@model).not_to callback(:scream!).around(lifecycle)
         end
         it "should have a meaningful description" do
           matcher = callback(:dance!).before(lifecycle)
-          matcher.description.should == "callback dance! before #{lifecycle}"
+          expect(matcher.description).to eq("callback dance! before #{lifecycle}")
         end
 
         it "should not find a callback before the fact" do
-          @model.should_not callback(@callback_object_class).before(lifecycle)
+          expect(@model).not_to callback(@callback_object_class).before(lifecycle)
         end
         it "should find the callback after the fact" do
-          @model.should callback(@callback_object_class).after(lifecycle)
+          expect(@model).to callback(@callback_object_class).after(lifecycle)
         end
         it "should not find a callback around the fact" do
-          @model.should_not callback(@callback_object_class).around(lifecycle)
+          expect(@model).not_to callback(@callback_object_class).around(lifecycle)
         end
         it "should not find callbacks that are not there" do
-          @model.should_not callback(@callback_object_not_found_class).around(lifecycle)
+          expect(@model).not_to callback(@callback_object_not_found_class).around(lifecycle)
         end
         it "should have a meaningful description" do
           matcher = callback(@callback_object_class).before(lifecycle)
-          matcher.description.should == "callback Callback before #{lifecycle}"
+          expect(matcher.description).to eq("callback Callback before #{lifecycle}")
         end
       end
 
       context "with conditions" do
         it "should match the if condition" do
-          @model.should callback(:dance!).after(lifecycle).if(:evaluates_to_false!)
+          expect(@model).to callback(:dance!).after(lifecycle).if(:evaluates_to_false!)
         end
         it "should match the unless condition" do
-          @model.should callback(:shake!).after(lifecycle).unless(:evaluates_to_true!)
+          expect(@model).to callback(:shake!).after(lifecycle).unless(:evaluates_to_true!)
         end
         it "should not find callbacks not matching the conditions" do
-          @model.should_not callback(:giggle!).around(lifecycle).unless(:evaluates_to_false!)
+          expect(@model).not_to callback(:giggle!).around(lifecycle).unless(:evaluates_to_false!)
         end
         it "should not find callbacks that are not there entirely" do
-          @model.should_not callback(:scream!).before(lifecycle).unless(:evaluates_to_false!)
+          expect(@model).not_to callback(:scream!).before(lifecycle).unless(:evaluates_to_false!)
         end
         it "should have a meaningful description" do
           matcher = callback(:dance!).after(lifecycle).unless(:evaluates_to_false!)
-          matcher.description.should == "callback dance! after #{lifecycle} unless evaluates_to_false! evaluates to false"
+          expect(matcher.description).to eq("callback dance! after #{lifecycle} unless evaluates_to_false! evaluates to false")
         end
         it "should match the if condition" do
-          @model.should callback(@callback_object_class).after(lifecycle).if(:evaluates_to_false!)
+          expect(@model).to callback(@callback_object_class).after(lifecycle).if(:evaluates_to_false!)
         end
         it "should match the unless condition" do
-          @model.should callback(@callback_object_class2).after(lifecycle).unless(:evaluates_to_true!)
+          expect(@model).to callback(@callback_object_class2).after(lifecycle).unless(:evaluates_to_true!)
         end
         it "should not find callbacks not matching the conditions" do
-          @model.should_not callback(@callback_object_class).around(lifecycle).unless(:evaluates_to_false!)
+          expect(@model).not_to callback(@callback_object_class).around(lifecycle).unless(:evaluates_to_false!)
         end
         it "should not find callbacks that are not there entirely" do
-          @model.should_not callback(@callback_object_not_found_class).before(lifecycle).unless(:evaluates_to_false!)
+          expect(@model).not_to callback(@callback_object_not_found_class).before(lifecycle).unless(:evaluates_to_false!)
         end
         it "should have a meaningful description" do
           matcher = callback(@callback_object_class).after(lifecycle).unless(:evaluates_to_false!)
-          matcher.description.should == "callback Callback after #{lifecycle} unless evaluates_to_false! evaluates to false"
+          expect(matcher.description).to eq("callback Callback after #{lifecycle} unless evaluates_to_false! evaluates to false")
         end
       end
 
