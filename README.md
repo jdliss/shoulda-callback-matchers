@@ -33,19 +33,19 @@ Object Callbacks:
 ````ruby
 class CallbackClass
   def before_save
-    ...
+	...
   end
 
   def after_create
-    ...
+	...
   end
 
   def before_validation
-    ...
+	...
   end
 
   def after_find
-    ...
+	...
   end
 end
 
@@ -100,6 +100,9 @@ Shoulda is maintained and funded by [thoughtbot](http://thoughtbot.com/community
 
 ## Contributors & Contributions
 - @pvertenten (callback objects)
+- @johnnyshields (bugfixes)
+- @esbarango (README updates)
+- @yuku-t (Rails 4.2 Support)
 
 Let's make this gem useful, send me a PR if you've discovered an issue you'd like to fix!
 
