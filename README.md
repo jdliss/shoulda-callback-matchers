@@ -10,21 +10,21 @@ Method Callbacks:
 
 ````ruby
 describe Post do
-  it { should callback(:count_comments).before(:save) }
-  it { should callback(:post_to_twitter).after(:create) }
-  it { should callback(:evaluate_if_should_validate).before(:validation) }
-  it { should callback(:add_some_convenience_accessors).after(:find) }
+  it { is_expected.to callback(:count_comments).before(:save) }
+  it { is_expected.to callback(:post_to_twitter).after(:create) }
+  it { is_expected.to callback(:evaluate_if_is_should_validate).before(:validation) }
+  it { is_expected.to callback(:add_some_convenience_accessors).after(:find) }
 
   # with conditions
 
-  it { should callback(:assign_something).before(:create).if(:this_is_true) }
-  it { should callback(:destroy_something_else).before(:destroy).unless(:this_is_true) }
+  it { is_expected.to callback(:assign_something).before(:create).if(:this_is_true) }
+  it { is_expected.to callback(:destroy_something_else).before(:destroy).unless(:this_is_true) }
 end
 
 describe User do
-  it { should_not callback(:make_email_validation_ready!).before(:validation).on(:update) }
-  it { should callback(:make_email_validation_ready!).before(:validation).on(:create) }
-  it { should callback(:update_user_count).before(:destroy) }
+  it { is_expected.not_to callback(:make_email_validation_ready!).before(:validation).on(:update) }
+  it { is_expected.to callback(:make_email_validation_ready!).before(:validation).on(:create) }
+  it { is_expected.to callback(:update_user_count).before(:destroy) }
 end
 ````
 
@@ -50,20 +50,20 @@ class CallbackClass
 end
 
 describe Post do
-  it { should callback(CallbackClass).before(:save) }
-  it { should callback(CallbackClass).after(:create) }
-  it { should callback(CallbackClass).before(:validation) }
-  it { should callback(CallbackClass).after(:find) }
+  it { is_expected.to callback(CallbackClass).before(:save) }
+  it { is_expected.to callback(CallbackClass).after(:create) }
+  it { is_expected.to callback(CallbackClass).before(:validation) }
+  it { is_expected.to callback(CallbackClass).after(:find) }
 
 	# with conditions
-  it { should callback(CallbackClass).before(:create).if(:this_is_true) }
-  it { should callback(CallbackClass).after(:find).unless(:is_this_true?) }
+  it { is_expected.to callback(CallbackClass).before(:create).if(:this_is_true) }
+  it { is_expected.to callback(CallbackClass).after(:find).unless(:is_this_true?) }
 end
 
 describe User do
-  it { should_not callback(CallbackClass).before(:validation).on(:update) }
-  it { should callback(CallbackClass).before(:validation).on(:create) }
-  it { should callback(CallbackClass).before(:destroy) }
+  it { is_expected.not_to callback(CallbackClass).before(:validation).on(:update) }
+  it { is_expected.to callback(CallbackClass).before(:validation).on(:create) }
+  it { is_expected.to callback(CallbackClass).before(:destroy) }
 end
 ````
 
