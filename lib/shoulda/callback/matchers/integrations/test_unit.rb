@@ -5,7 +5,7 @@ include Shoulda::Callback::Matchers::RailsVersionHelper
 # in environments where test/unit is not required, this is necessary
 unless defined?(Test::Unit::TestCase)
   begin
-    require rails_4_1? ? 'minitest' : 'test/unit/testcase'
+    require rails_version == '4.1' ? 'minitest' : 'test/unit/testcase'
   rescue LoadError
     # silent
   end
