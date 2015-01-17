@@ -1,7 +1,7 @@
   require 'spec_helper'
 
 describe Shoulda::Callback::Matchers::ActiveModel do
-  
+
   context "invalid use" do
     before do
       @callback_object_class = define_model :callback do
@@ -20,7 +20,7 @@ describe Shoulda::Callback::Matchers::ActiveModel do
         define_method(:shake!){}
         define_method(:dance!){}
       end.new
-      
+
     end
     it "should return a meaningful error when used without a defined lifecycle" do
       lambda { callback(:dance!).matches? :foo }.should raise_error Shoulda::Callback::Matchers::ActiveModel::UsageError,
@@ -43,7 +43,7 @@ describe Shoulda::Callback::Matchers::ActiveModel do
         "Can not callback before or around commit, use after."
     end
   end
-  
+
   [:save, :create, :update, :destroy].each do |lifecycle|
     context "on #{lifecycle}" do
       before do
@@ -52,16 +52,16 @@ describe Shoulda::Callback::Matchers::ActiveModel do
           define_method("after_#{lifecycle}"){}
           define_method("around_#{lifecycle}"){}
         end
-        
+
         callback_object = @callback_object_class.new
-        
+
         @other_callback_object_class = define_model(:other_callback) do
           define_method("after_#{lifecycle}"){}
           define_method("around_#{lifecycle}"){}
         end
 
         other_callback_object = @other_callback_object_class.new
-        
+
         @callback_object_not_found_class = define_model(:callback_not_found) do
           define_method("before_#{lifecycle}"){}
           define_method("after_#{lifecycle}"){}
@@ -74,12 +74,12 @@ describe Shoulda::Callback::Matchers::ActiveModel do
           send(:"after_#{lifecycle}", :shake!, :unless => :evaluates_to_true!)
           send(:"around_#{lifecycle}", :giggle!)
           send(:"before_#{lifecycle}", :wiggle!)
-          
+
           send(:"before_#{lifecycle}", callback_object, :if => :evaluates_to_false!)
           send(:"after_#{lifecycle}", callback_object, :unless => :evaluates_to_true!)
           send(:"around_#{lifecycle}", callback_object)
           send(:"before_#{lifecycle}", other_callback_object)
-          
+
           define_method(:shake!){}
           define_method(:dance!){}
           define_method(:giggle!){}
@@ -126,13 +126,13 @@ describe Shoulda::Callback::Matchers::ActiveModel do
         end
         it "should have a meaningful error if it fails with an inexistent method on a model" do
           matcher = callback(:wiggle!).before(lifecycle)
-          matcher.matches?(@model).should be_false
-          matcher.failure_message.should == "callback wiggle! is listed as a callback before #{lifecycle}, but the model does not respond to wiggle! (using respond_to?(:wiggle!, true)"
+          matcher.matches?(@model).should eq(false)
+          matcher.failure_message.should eq("callback wiggle! is listed as a callback before #{lifecycle}, but the model does not respond to wiggle! (using respond_to?(:wiggle!, true)")
         end
         it "should have a meaningful error if it fails with an inexistent method on a callback class" do
           matcher = callback(@other_callback_object_class).before(lifecycle)
-          matcher.matches?(@model).should be_false
-          matcher.failure_message.should == "callback OtherCallback is listed as a callback before #{lifecycle}, but the given object does not respond to before_#{lifecycle} (using respond_to?(:before_#{lifecycle}, true)"
+          matcher.matches?(@model).should eq(false)
+          matcher.failure_message.should eq("callback OtherCallback is listed as a callback before #{lifecycle}, but the given object does not respond to before_#{lifecycle} (using respond_to?(:before_#{lifecycle}, true)")
         end
       end
       context "with conditions" do
@@ -172,7 +172,7 @@ describe Shoulda::Callback::Matchers::ActiveModel do
       end
     end
   end
-  
+
   context "on validation" do
     before do
      @callback_object_class = define_model(:callback) do
@@ -211,7 +211,7 @@ describe Shoulda::Callback::Matchers::ActiveModel do
         define_method(:pucker!){}
       end.new
     end
-    
+
     context "as a simple callback test" do
       it "should find the callback before the fact" do
         @model.should callback(:dance!).before(:validation)
@@ -247,7 +247,7 @@ describe Shoulda::Callback::Matchers::ActiveModel do
         matcher.description.should == "callback Callback before validation"
       end
     end
-    
+
     context "with additinal lifecycles defined" do
       it "should find the callback before the fact on create" do
         @model.should callback(:dress!).before(:validation).on(:create)
@@ -283,7 +283,7 @@ describe Shoulda::Callback::Matchers::ActiveModel do
         matcher.description.should == "callback Callback after validation on update"
       end
     end
-    
+
     context "with conditions" do
       it "should match the if condition" do
         @model.should callback(:dance!).before(:validation).if(:evaluates_to_false!)
@@ -319,7 +319,7 @@ describe Shoulda::Callback::Matchers::ActiveModel do
         matcher.description.should == "callback Callback after validation unless evaluates_to_false! evaluates to false"
       end
     end
-    
+
     context "with conditions and additional lifecycles" do
       it "should find the callback before the fact on create" do
         @model.should callback(:dress!).before(:validation).on(:create)
@@ -356,8 +356,8 @@ describe Shoulda::Callback::Matchers::ActiveModel do
       end
     end
   end
-  
-  
+
+
   [:rollback, :commit].each do |lifecycle|
     context "on #{lifecycle}" do
       before do
@@ -394,8 +394,8 @@ describe Shoulda::Callback::Matchers::ActiveModel do
           define_method(:pucker!){}
         end.new
       end
-    
-      context "as a simple callback test" do        
+
+      context "as a simple callback test" do
         it "should find the callback after the fact" do
           @model.should callback(:shake!).after(lifecycle)
         end
@@ -418,7 +418,7 @@ describe Shoulda::Callback::Matchers::ActiveModel do
           matcher.description.should == "callback Callback after #{lifecycle}"
         end
       end
-    
+
       context "with additinal lifecycles defined" do
         it "should find the callback after the fact on create" do
           @model.should callback(:dress!).after(lifecycle).on(:create)
@@ -454,7 +454,7 @@ describe Shoulda::Callback::Matchers::ActiveModel do
           matcher.description.should == "callback Callback after #{lifecycle} on update"
         end
       end
-    
+
       context "with conditions" do
         it "should match the if condition" do
           @model.should callback(:dance!).after(lifecycle).if(:evaluates_to_false!)
@@ -490,7 +490,7 @@ describe Shoulda::Callback::Matchers::ActiveModel do
           matcher.description.should == "callback Callback after #{lifecycle} unless evaluates_to_false! evaluates to false"
         end
       end
-    
+
       context "with conditions and additional lifecycles" do
         it "should find the callback before the fact on create" do
           @model.should callback(:dress!).after(lifecycle).on(:create)
@@ -528,7 +528,7 @@ describe Shoulda::Callback::Matchers::ActiveModel do
       end
     end
   end
-  
+
   [:initialize, :find, :touch].each do |lifecycle|
     context "on #{lifecycle}" do
       before do
@@ -555,18 +555,18 @@ describe Shoulda::Callback::Matchers::ActiveModel do
           send(:"after_#{lifecycle}", callback_object2, :unless => :evaluates_to_true!)
           define_method(:shake!){}
           define_method(:dance!){}
-          
+
           define_method :evaluates_to_false! do
             false
           end
-          
+
           define_method :evaluates_to_true! do
             true
           end
-          
+
         end.new
       end
-      
+
       context "as a simple callback test" do
         it "should not find a callback before the fact" do
           @model.should_not callback(:dance!).before(lifecycle)
@@ -602,7 +602,7 @@ describe Shoulda::Callback::Matchers::ActiveModel do
           matcher.description.should == "callback Callback before #{lifecycle}"
         end
       end
-      
+
       context "with conditions" do
         it "should match the if condition" do
           @model.should callback(:dance!).after(lifecycle).if(:evaluates_to_false!)
@@ -637,7 +637,7 @@ describe Shoulda::Callback::Matchers::ActiveModel do
           matcher.description.should == "callback Callback after #{lifecycle} unless evaluates_to_false! evaluates to false"
         end
       end
-      
+
     end
   end
 end
