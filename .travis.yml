@@ -19,7 +19,7 @@ gemfile:
 
 
 matrix:
-  allow_failures:
+  exclude:
     - rvm: 2.2.0
       gemfile: gemfiles/rails_4.0.gemfile
     - rvm: 2.2.0
