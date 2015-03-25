@@ -12,5 +12,6 @@ gem "psych", :platform=>:rbx
 gem "rails", "~> 4.1.0"
 gem "jquery-rails"
 gem "sass-rails", "~> 4.0"
+gem "mocha"
 
 gemspec :path=>"../"
