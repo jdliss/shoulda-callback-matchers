@@ -93,6 +93,19 @@ end
 
 Shoulda will automatically include matchers into the appropriate example groups.
 
+## Troubleshooting
+
+### RSpec + Spring
+#### undefined method `callback'
+
+If you're getting this error, it's probably due to classes being redefined by Spring - currently this library does not accommodate for reloaded classes. The easiest fix is to load the matchers into the test library config in your `rails_helper.rb`:
+
+```ruby
+RSpec.configure do |config|
+  config.include(Shoulda::Callback::Matchers::ActiveModel)
+end
+```
+
 ## Credits
 
 This gem is maintained by me and its contributors,
