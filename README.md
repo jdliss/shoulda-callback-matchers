@@ -63,6 +63,7 @@ end
 describe User do
   it { is_expected.not_to callback(CallbackClass).before(:validation).on(:update) }
   it { is_expected.to callback(CallbackClass).before(:validation).on(:create) }
+  it { is_expected.to callback(CallbackClass).before(:validation).on([:create, :update]) }
   it { is_expected.to callback(CallbackClass).before(:destroy) }
 end
 ````
