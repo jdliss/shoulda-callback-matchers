@@ -188,8 +188,6 @@ module Shoulda # :nodoc:
           def rails_3_lifecycle_context_string
             if @lifecycle == :validation
               "self.validation_context == :#{@optional_lifecycle}"
-            elsif @optional_lifecycle.kind_of?(Array)
-              "transaction_include_any_action?(#{@optional_lifecycle})"
             else
               "transaction_include_action?(:#{@optional_lifecycle})"
             end

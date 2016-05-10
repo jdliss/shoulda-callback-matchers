@@ -6,6 +6,7 @@ FileUtils.rm_rf TESTAPP_ROOT if File.exists? TESTAPP_ROOT
 
 ENV['RAILS_ENV'] = 'test'
 ENV['BUNDLE_GEMFILE'] ||= TESTAPP_ROOT.join('Gemfile')
+ENV['RAILS_VERSION'] = ENV['BUNDLE_GEMFILE'].split('/').last
 
 LOGGER.info "Generating Rails app in #{TESTAPP_ROOT}..."
 `rails new #{TESTAPP_ROOT}`
@@ -31,6 +32,10 @@ LOGGER.info "Done"
 RSpec.configure do |config|
   config.include ClassBuilder
   config.include ModelBuilder
+  binding.pry
+  if !ENV['RAILS_VERSION'].include?('4')
+    config.filter_run_excluding :rails_4 => true
+  end
 
   # rspec-rails 3 will no longer automatically infer an example group's spec type
   # from the file location. You can explicitly opt-in to the feature using this

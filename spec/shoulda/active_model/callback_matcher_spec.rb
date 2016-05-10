@@ -380,8 +380,6 @@ describe Shoulda::Callback::Matchers::ActiveModel do
           send :"after_#{lifecycle}", :dance!, :if => :evaluates_to_false!
           send :"after_#{lifecycle}", :shake!, :unless => :evaluates_to_true!
           send :"after_#{lifecycle}", :dress!, :on => :create
-          send :"after_#{lifecycle}", :jump!, :on => [:create, :update]
-          send :"after_#{lifecycle}", :holler!, :on => [:update, :destroy]
           send :"after_#{lifecycle}", :shriek!, :on => :update, :unless => :evaluates_to_true!
           send :"after_#{lifecycle}", :pucker!, :on => :destroy, :if => :evaluates_to_false!
           send :"after_#{lifecycle}", callback_object, :if => :evaluates_to_false!
@@ -389,6 +387,12 @@ describe Shoulda::Callback::Matchers::ActiveModel do
           send :"after_#{lifecycle}", callback_object, :on => :create
           send :"after_#{lifecycle}", callback_object, :on => :update, :unless => :evaluates_to_true!
           send :"after_#{lifecycle}", callback_object2, :on => :destroy, :if => :evaluates_to_false!
+          if ENV['RAILS_VERSION'].include?('4')
+            send :"after_#{lifecycle}", :jump!, :on => [:create, :update]
+            send :"after_#{lifecycle}", :holler!, :on => [:update, :destroy]
+            send :"after_#{lifecycle}", callback_object, :on => [:create, :update]
+            send :"after_#{lifecycle}", callback_object, :on => [:update, :destroy]
+          end
           define_method(:dance!){}
           define_method(:shake!){}
           define_method(:dress!){}
@@ -459,13 +463,19 @@ describe Shoulda::Callback::Matchers::ActiveModel do
         end
       end
 
-      context "with multiple lifecycles defined" do
-         it "should find the callback after the fact on create and update" do
+      context "with multiple lifecycles defined", rails_4: true do
+        it "should find the callback after the fact on create and update" do
           expect(@model).to callback(:jump!).after(lifecycle).on([:create, :update])
         end
-
         it "should find the callback after the fact on update and destroy" do
           expect(@model).to callback(:holler!).after(lifecycle).on([:update, :destroy])
+        end
+
+        it "should find the callback after the fact on create and update" do
+          expect(@model).to callback(@callback_object_class).after(lifecycle).on([:create, :update])
+        end
+        it "should find the callback after the fact on update and destroy" do
+          expect(@model).to callback(@callback_object_class).after(lifecycle).on([:update, :destroy])
         end
       end
 
