@@ -387,7 +387,7 @@ describe Shoulda::Callback::Matchers::ActiveModel do
           send :"after_#{lifecycle}", callback_object, :on => :create
           send :"after_#{lifecycle}", callback_object, :on => :update, :unless => :evaluates_to_true!
           send :"after_#{lifecycle}", callback_object2, :on => :destroy, :if => :evaluates_to_false!
-          if ENV['RAILS_VERSION'].include?('4')
+          if rails_version >= '4.0'
             send :"after_#{lifecycle}", :jump!, :on => [:create, :update]
             send :"after_#{lifecycle}", :holler!, :on => [:update, :destroy]
             send :"after_#{lifecycle}", callback_object, :on => [:create, :update]

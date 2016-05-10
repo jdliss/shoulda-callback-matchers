@@ -6,7 +6,6 @@ FileUtils.rm_rf TESTAPP_ROOT if File.exists? TESTAPP_ROOT
 
 ENV['RAILS_ENV'] = 'test'
 ENV['BUNDLE_GEMFILE'] ||= TESTAPP_ROOT.join('Gemfile')
-ENV['RAILS_VERSION'] = ENV['BUNDLE_GEMFILE'].split('/').last
 
 LOGGER.info "Generating Rails app in #{TESTAPP_ROOT}..."
 `rails new #{TESTAPP_ROOT}`
@@ -33,7 +32,7 @@ RSpec.configure do |config|
   config.include ClassBuilder
   config.include ModelBuilder
 
-  if !ENV['RAILS_VERSION'].include?('4')
+  if rails_version >= '4.0'
     config.filter_run_excluding :rails_4 => true
   end
 
