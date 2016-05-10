@@ -32,7 +32,7 @@ LOGGER.info "Done"
 RSpec.configure do |config|
   config.include ClassBuilder
   config.include ModelBuilder
-  binding.pry
+
   if !ENV['RAILS_VERSION'].include?('4')
     config.filter_run_excluding :rails_4 => true
   end
