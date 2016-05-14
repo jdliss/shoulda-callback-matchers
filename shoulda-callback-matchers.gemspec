@@ -4,11 +4,11 @@ require 'shoulda/callback/matchers/version'
 Gem::Specification.new do |s|
   s.name        = "shoulda-callback-matchers"
   s.version     = Shoulda::Callback::Matchers::VERSION.dup
-  s.authors     = ["Beat Richartz"]
+  s.authors     = ["Beat Richartz", "Jonathan Liss"]
   s.date        = Time.now.strftime("%Y-%m-%d")
   s.licenses    = ["MIT"]
-  s.email       = "attraccessor@gmail.com"
-  s.homepage    = "http://github.com/beatrichartz/shoulda-callback-matchers"
+  s.email       = "jonacom@lissismore.com"
+  s.homepage    = "http://github.com/jdliss/shoulda-callback-matchers"
   s.summary     = "Making callback tests easy on the fingers and eyes"
   s.description = "Making callback tests easy on the fingers and eyes"
 
