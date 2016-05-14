@@ -8,6 +8,7 @@ rvm:
   - jruby-20mode
   - jruby-head
 
+sudo: false
 script: "bundle exec rspec"
 
 gemfile:
