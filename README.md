@@ -3,9 +3,6 @@
 
 Matchers to test before, after and around hooks(currently supports method and object callbacks):
 
-# New maintainer wanted
-If you fancy maintaining this gem, tweet [@beatrichartz](https://twitter.com/intent/tweet?text=%40beatrichartz&source=webclient) and I'll transfer it to you!
-
 ## Usage
 
 Method Callbacks:
