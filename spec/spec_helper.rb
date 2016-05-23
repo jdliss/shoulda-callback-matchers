@@ -32,6 +32,10 @@ RSpec.configure do |config|
   config.include ClassBuilder
   config.include ModelBuilder
 
+  if rails_version >= '4.0'
+    config.filter_run_excluding :rails_4 => true
+  end
+
   # rspec-rails 3 will no longer automatically infer an example group's spec type
   # from the file location. You can explicitly opt-in to the feature using this
   # config option.
