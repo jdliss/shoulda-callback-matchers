@@ -9,8 +9,11 @@ rvm:
   - jruby-20mode
   - jruby-head
 
+
 sudo: false
+before_install: gem install bundler
 script: "bundle exec rspec"
+
 
 gemfile:
   - gemfiles/rails_4.2.gemfile
@@ -18,6 +21,12 @@ gemfile:
   - gemfiles/rails_4.0.gemfile
   - gemfiles/rails_3.2.gemfile
   - gemfiles/rails_3.1.gemfile
+
+
+env:
+  matrix:
+    - JRUBY_OPTS=--2.0
+    - JRUBY_OPTS=
 
 
 matrix:
@@ -50,3 +59,23 @@ matrix:
       gemfile: gemfiles/rails_4.1.gemfile
     - rvm: jruby-19mode
       gemfile: gemfiles/rails_4.0.gemfile
+    - rvm: jruby-19mode
+      env: JRUBY_OPTS=--2.0
+    - rvm: jruby-20mode
+      env: JRUBY_OPTS=
+    - rvm: jruby-head
+      env: JRUBY_OPTS=--2.0
+    - rvm: 1.9.3
+      env: JRUBY_OPTS=--2.0
+    - rvm: 2.0.0
+      env: JRUBY_OPTS=--2.0
+    - rvm: 2.1.10
+      env: JRUBY_OPTS=--2.0
+    - rvm: 2.2.5
+      env: JRUBY_OPTS=--2.0
+    - rvm: 2.3.1
+      env: JRUBY_OPTS=--2.0
+    - rvm: rbx-2
+      env: JRUBY_OPTS=--2.0
+  allow_failures:
+    - rvm: jruby-20mode
