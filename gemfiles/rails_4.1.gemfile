@@ -2,16 +2,16 @@
 
 source "http://rubygems.org"
 
-gem "sqlite3", :platform=>:ruby
-gem "activerecord-jdbc-adapter", :platform=>:jruby
-gem "activerecord-jdbcsqlite3-adapter", :platform=>:jruby
-gem "jdbc-sqlite3", :platform=>:jruby
-gem "jruby-openssl", :platform=>:jruby
-gem "therubyrhino", :platform=>:jruby
-gem "psych", :platform=>:rbx
+gem "sqlite3", :platform => :ruby
+gem "activerecord-jdbc-adapter", :platform => :jruby
+gem "activerecord-jdbcsqlite3-adapter", :platform => :jruby
+gem "jdbc-sqlite3", :platform => :jruby
+gem "jruby-openssl", :platform => :jruby
+gem "therubyrhino", :platform => :jruby
+gem "psych", :platform => :rbx
 gem "rails", "~> 4.1.0"
 gem "jquery-rails"
-gem "sass-rails", "~> 4.0"
+gem "sass-rails", "~> 5.0"
 gem "mocha"
 
-gemspec :path=>"../"
+gemspec :path => "../"
