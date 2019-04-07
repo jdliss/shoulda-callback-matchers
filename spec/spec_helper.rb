@@ -8,7 +8,7 @@ ENV['RAILS_ENV'] = 'test'
 ENV['BUNDLE_GEMFILE'] ||= TESTAPP_ROOT.join('Gemfile')
 
 LOGGER.info "Generating Rails app in #{TESTAPP_ROOT}..."
-`rails new #{TESTAPP_ROOT}`
+`rails new #{TESTAPP_ROOT} --skip-bootsnap`
 LOGGER.info "Done"
 
 require TESTAPP_ROOT.join('config', 'environment')
@@ -24,8 +24,12 @@ end
 
 # Run the migrations
 LOGGER.info "Running the migrations for the testapp..."
-ActiveRecord::Migration.verbose = false
-ActiveRecord::Migrator.migrate("#{Rails.root}/db/migrate")
+if rails_version >= '5.2'
+  ActiveRecord::MigrationContext.new("#{Rails.root}/db/migrate").migrate
+else
+  ActiveRecord::Migration.verbose = false
+  ActiveRecord::Migrator.migrate("#{Rails.root}/db/migrate")
+end
 LOGGER.info "Done"
 
 RSpec.configure do |config|
