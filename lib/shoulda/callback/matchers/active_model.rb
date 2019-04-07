@@ -204,8 +204,15 @@ module Shoulda # :nodoc:
           end
           
           def active_model_proc_matches_optional_lifecycle? if_conditions
-            if_conditions.select{|i| i.is_a? Proc }.any? do |condition|
-              condition.call ValidationContext.new(@optional_lifecycle)
+            if @lifecycle != :validation && rails_version >= '5.2'
+              optional_lifecycles = @optional_lifecycle.kind_of?(Array) ? @optional_lifecycle : [@optional_lifecycle]
+              if_conditions.select { |c| c.is_a?(Proc) && c.binding.local_variable_defined?(:fire_on) }.any? do |c|
+                c.binding.local_variable_get(:fire_on) == optional_lifecycles
+              end
+            else
+              if_conditions.select{|i| i.is_a? Proc }.any? do |condition|
+                condition.call ValidationContext.new(@optional_lifecycle)
+              end
             end
           end
           
